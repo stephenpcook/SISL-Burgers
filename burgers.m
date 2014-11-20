@@ -3,13 +3,16 @@ clear all
 clf
 
 % Parameters
-N=100;       % Level of spacial discretisation
+N=21;       % Level of spacial discretisation
 Dx= 1./(N+1); % Space step
-Dt= 0.012;   % Timestep
+tN = 200;
+%Dt= 0.012;   % Timestep
 theta_t=1/2;  % Theta for the Theta method in time.
 theta_x=1/2;  % Theta for the Theta-method for departure points.
-epsilon=0.005; % Epsilon in the PDE
-tmax = 2;
+epsilon=0.002; % Epsilon in the PDE
+tmax = 1.5;
+
+Dt = tmax/tN;
 
 
 % Initial and boundary conditions
@@ -30,15 +33,24 @@ M_LHS = eye(N) + Dt/(Dx^2) * theta_t * epsilon * del2;
 X = (1:N)'./(N+1);
 Un = u0(X);
 
+% For plotting...
+tout=(0:Dt:tmax)';
+uout=zeros(length(tmax),N);
+uout(1,:) = Un;
+xout = X;
+jj=1;
+
 % Outer loop. Timestep
-for t = 0:Dt:tmax
+for t = 0:Dt:(tmax-Dt)
 % Timestep initialisation
 % Cubic spline of Un (including the constant end points)  
 rhs0 = -Dt/(Dx^2) * (1-theta_t) * epsilon *...
     (5*Un(1) + 4*Un(2) - Un(3)); % This is an order h^2 approx'n to u''
 rhsN = -Dt/(Dx^2) * (1-theta_t) * epsilon *...
     (5*Un(N) + 4*Un(N-1) - Un(N-2));
-pp_rhs = spline([0;X;1],[rhs0; (M_RHS * Un) ; rhsN]);
+%pp_rhs = spline([0;X;1],[rhs0; (M_RHS * Un) ; rhsN]);
+pp_rhs = interp1([0;X;1],[rhs0; (M_RHS * Un) ; rhsN],'linear','pp');
+%   TODO
 %   This is actually wrong at the moment. Want to take into account
 %   the second derivative term at the left and right points.
 %   Since this is in the known LHS, could make this higher order;
@@ -61,5 +73,11 @@ X_D = X - Dt*Un;
  % End of Inner Loop
 % Prep for next timestep.
 Un = U_A;
-plot([u_l;U_A;u_r]), title(['t = ',num2str(t)]), ylim([-1 1.5]), drawnow()
+%plot([u_l;U_A;u_r]), title(['t = ',num2str(t)]), ylim([-1 1.5]), drawnow()
+jj=jj+1;
+uout(jj,:)=Un;
 end % for t
+
+% mk_video('test.avi','test',tout,uout,xout);
+
+

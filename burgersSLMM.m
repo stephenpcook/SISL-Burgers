@@ -7,6 +7,7 @@
 % ~/dos/MATLAB/Eqd1dExact.m
 % ~/dos/MATLAB/interp1cubicL.m
 % ~/dos/MATLAB/ppval_lim.m
+% ~/dos/MATLAB/mk_video.m
 
 clear all
 clf
@@ -15,14 +16,18 @@ clf
 % General Parameters
 N=21;       % Level of spacial discretisation
 K=40;         % Departure point iterations
-%Dt= 0.012;   % Timestep
-tN = 150;
-tmax = 1.5;   % Final time
+tN = 150;     % Number of timesteps
 theta_t=1/2;  % Theta for the Theta method in time.
 theta_x=1/2;  % Theta for the Theta-method for departure points.
 epsilon=0.0001 ; % Epsilon in the PDE
 
-Dt = tmax/tN;
+x0 = -1;
+x1 = 4;
+Dx= (x1-x0)./(N+1); % Space step
+
+t0 = 0;
+tmax = 1.5;   % Final time
+Dt = (tmax-t0)/tN;
 
 % Mesh Parameters
 %mesh = 'static';
@@ -43,33 +48,32 @@ tau =1;
 with_euler = 1;
 
 
-
 % Initial and boundary conditions
 u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x));
-%u0 = @(x) 1 - tanh(x/(2*epsilon));
-%u_l = 1;
-u_l = 0;
-u_r = 0;
-Dx= 1./(N+1); % Space step
+%c = 1; alpha = 0.5;
+%u0 = @(x) c - alpha*tanh(alpha/(2*epsilon)*(x - c*t0));
+u_l = u0(x0);
+u_r = u0(x1);
 
 % Matrices to be used. Tridiagonal, so could be done more efficiently
 
 % del2 - \delta_x^2, a tridiagonal matrix, finite difference second 
 % derivative operator.
-del2 = 2*eye(N) - diag(ones(N-1,1),1) - diag(ones(N-1,1),-1);
+del2 = -2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1);
 % LHS and RHS of SISL formulation
-M_RHS = eye(N) - Dt/(Dx^2) * (1 - theta_t) * epsilon * del2;
-M_LHS = eye(N) + Dt/(Dx^2) * theta_t * epsilon * del2;
+M_RHS = eye(N) + Dt/(Dx^2) * (1 - theta_t) * epsilon * del2;
+M_LHS = eye(N) - Dt/(Dx^2) * theta_t * epsilon * del2;
+BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
-X0 = 0;
-X = (1:N)'./(N+1);
-XN = 1;
+X0 = x0;
+X = x0 + (1:N)'*Dx;
+XN = x1;
 Dxi = 1/(N+1);
 %X = X.^2;
 Un = u0(X);
 X_An = X;
-TT = (0:Dt:tmax)';
+TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
 dept_convergence = zeros(K,length(TT));
@@ -77,8 +81,10 @@ uout= XX;
 uout(1,:) = Un;
 %jj=1; % Counting variable for saving entries to uout.
 
-del2n1 = eye(N);
+del2n1 = del2;
 del2n = eye(N);
+BCn1 = BC;
+BCn = zeros(N,1);
 
 % Outer loop. Timestep
 for tt = 1:length(TT)
@@ -97,15 +103,16 @@ switch mesh
 	% Not yet done, static for now.
         X_An1 = X;
     case 'moving-exact'
-        %XN = [0;X_An;1];
+        %XN = [x0;X_An;x1];
         U = [u_l;Un;u_r];
-        DUDX = [u_l;diff(U)]./[1;diff([0;X_An;1])];
+        X_ = [x0;X_An;x1];
+        DUDX = [u_l;diff(U)]./[X_An(1)-x0;diff(X_)];
         if with_euler
-            Uhat = U + Dt*fwd_euler(U,[0;X_An;1],epsilon);
-            DUhatDX = [u_l;diff(Uhat)]./[1;diff([0;X_An;1])];
-            M = m([0;X_An;1],Uhat,DUhatDX);
+            Uhat = U + Dt*fwd_euler(U,X_,epsilon);
+            DUhatDX = [u_l;diff(Uhat)]./[X_An(1)-x0;diff(X_)];
+            M = m(X_,Uhat,DUhatDX);
         else
-            M = m([0;X_An;1],U,DUDX);
+            M = m(X_,U,DUDX);
         end
         % Smooth
         for iii = 1:p_smooth
@@ -113,13 +120,13 @@ switch mesh
             M = conv(M,[1/4,1/2,1/4],'same');  % Smoothing
             M = M(2:end-1);
         end % iii
-        M=M./(trapz([0;X_An;1],M)); % normalise
+        M=M./(trapz(X_,M)); % normalise
         M = 1/2 + M./2;             % Average
         %
         monitor.type = 'points';
-        monitor.x = [0;X_An;1];
+        monitor.x = X_;
         monitor.M = M;
-        X_An1 = Eqd1dExact([0;X_An;1], monitor);
+        X_An1 = Eqd1dExact(X_, monitor);
         X_An1 = X_An1(2:end-1);
  %       X_An1 = (X_An1 + X_An)./2;
 	vtitle = ['Semi-Lagrangian Burgers, moving mesh (exact), N = '...
@@ -129,10 +136,11 @@ switch mesh
         % we solve a moving mesh PDE to get the movement, 
         % and to do the we take M to sit at the midpoints.
         
-        %XN = [0;X_An;1];
+        X_ = [x0;X_An;x1];
+        %XN = X_;
         U = [u_l;Un;u_r];
-        DUDX = diff(U)./diff([0;X_An;1]);    % ! Sits at the midpoints
-        M = m([0;X_An;1],U,DUDX); % This might require changing for
+        DUDX = diff(U)./diff(X_);    % ! Sits at the midpoints
+        M = m(X_,U,DUDX); % This might require changing for
                                   % different monitor functions.
         % Smooth
         for iii = 1:p_smooth
@@ -143,16 +151,16 @@ switch mesh
             M = conv(M,[1/4,1/2,1/4],'same');  % Using convolution
             M = M(2:end-1); % Undo the first line of this loop.
         end % iii
-        M=M./(trapz(1/2*([0;X_An]+[X_An;1]),M)); % normalise
+        M=M./(trapz(1/2*([x0;X_An]+[X_An;x1]),M)); % normalise
         M = 1/2 + M./2;             % Average
         %
-        x = [0;X_An;1];
-        %monitor.M = m([0;X_An;1],U,DUDX);
+        x = X_;
+        %monitor.M = m([x0;X_An;x1],U,DUDX);
         % Spline it!
         M_pp = spline(x,mmpde5(M,x,Dxi,tau));
         [~,ode_out] = ode15s(@(t,x_)ppval(M_pp,x_),[0 Dt],x);
         X_An1 = ode_out(end,:)';
-        %X_An1 = [0;X_An;1] + Dt*mmpde5(M,x,Dxi,tau);
+        %X_An1 = X_ + Dt*mmpde5(M,x,Dxi,tau);
         X_An1 = X_An1(2:end-1);
  %       X_An1 = (X_An1 + X_An)./2;
 	vtitle = ['Semi-Lagrangian Burgers, moving mesh (relax), N = '...
@@ -162,10 +170,11 @@ switch mesh
         X_An1 = X;
 end % switch
 
-DX_An = diff([0;X_An;1]);
-DX_An1 = diff([0;X_An1;1]);
+DX_An = diff([x0;X_An;x1]);
+DX_An1 = diff([x0;X_An1;x1]);
 
 del2n = del2n1;
+BCn = BCn1;
 
 % Build up the LHS and RHS tridiagonal matrix. Can recycle these 
 % and get 2 uses out of each del2 matrix (only redo one)
@@ -176,8 +185,12 @@ for ii=2:(N-1)
     del2n1(ii,ii) = -2/(DX_An1(ii)*DX_An1(ii+1));
     del2n1(ii,ii+1) = 2/(DX_An1(ii+1)*(DX_An1(ii+1)+DX_An1(ii)));
 end
-del2n1(N,N-1) = 2/(DX_An1(N-1)*(DX_An1(N)+DX_An1(N-1)));
-del2n1(N,N) = -2/(DX_An1(N)*DX_An1(N-1));
+del2n1(N,N-1) = 2/(DX_An1(N)*(DX_An1(N+1)+DX_An1(N)));
+del2n1(N,N) = -2/(DX_An1(N+1)*DX_An1(N));
+
+BCn1(1) = 2*u_l/(DX_An1(2)*(DX_An1(1)+DX_An1(2)));
+BCn1(N) = 2*u_r/(DX_An1(N)*(DX_An1(N)+DX_An1(N+1)));
+
 M_LHS = eye(N) - Dt * theta_t * epsilon * del2n1;
 
 %del2n(1,1) = -2/(DX_An(2)*DX_An(1));
@@ -192,20 +205,27 @@ M_LHS = eye(N) - Dt * theta_t * epsilon * del2n1;
 M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2n;
 
 % Make the spline for interpolation
-rhs0 = -Dt/(Dx^2) * (1-theta_t) * epsilon *...
-    (5*Un(1) + 4*Un(2) - Un(3)); % This is an order h^2 approx'n to u''
-rhsN = -Dt/(Dx^2) * (1-theta_t) * epsilon *...
-    (5*Un(N) + 4*Un(N-1) - Un(N-2));
+% TODO Could use a higher order term by using u_l, u(1),u(2) and u(3), like in burgers.m
+rhs0 = u_l - Dt * (1-theta_t) * epsilon *...
+    (DX_An1(2)*u_l - (DX_An1(1)+DX_An1(2))*Un(1) + DX_An1(1)*Un(2))/...
+    (1/2*DX_An1(1)*DX_An1(2)*(DX_An1(1)+DX_An1(2))); % This is an O(h) approx'n to u''
+rhsN = u_r - Dt * (1-theta_t) * epsilon *...
+    (DX_An1(N)*u_r - (DX_An1(N)+DX_An1(N+1))*Un(N) + DX_An1(N+1)*Un(N-1))/...
+    (1/2*DX_An1(N)*DX_An1(N+1)*(DX_An1(N)+DX_An1(N+1))); 
 switch interpolation
     case 'linear'
-        pp_rhs = interp1([0;X_An;1],[rhs0; (M_RHS * Un) ; rhsN],...
+        pp_rhs = interp1([x0;X_An;x1],...
+          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN],...
             'linear','pp');
     case 'CSpline'
-        pp_rhs = spline([0;X_An;1],[rhs0; (M_RHS * Un) ; rhsN]);
+        pp_rhs = spline([x0;X_An;x1],...
+        [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'CLagrange'
-        pp_rhs = interp1cubicL([0;X_An;1],[rhs0; (M_RHS * Un) ; rhsN]);
+        pp_rhs = interp1cubicL([x0;X_An;x1],...
+          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'pchip'
-        pp_rhs = pchip([0;X_An;1],[rhs0; (M_RHS * Un) ; rhsN]);
+        pp_rhs = pchip([x0;X_An;x1],...
+          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
 end
 
 % Initial guess of departure points.
@@ -220,7 +240,7 @@ X_D = X_An1 - Dt*Un;
  end
  
  % Solve the implicit equation (Thomas algorithm implemented later)
- U_A = M_LHS\rhs_D;
+ U_A = M_LHS\(rhs_D + Dt*theta_t*epsilon*BCn1);
  % New guess at the departure points (theta-method) and recalculate 
  % RHS_D and U_A. 
  X_D_old = X_D;
@@ -233,7 +253,7 @@ X_D = X_An1 - Dt*Un;
      rhs_D = ppval(pp_rhs, X_D);
  end % if limiter
  end % for k
- U_A = M_LHS\rhs_D;
+ U_A = M_LHS\(rhs_D + Dt*theta_t*epsilon*BCn1);
  % End of Inner Loop
 
 
@@ -244,7 +264,7 @@ Un = U_A;
 %jj=jj+1;
 uout(tt,:) = Un;
 %%% And plot %%% 
-%plot([0;X_An1;1],[u_l;U_A;u_r]), title(['t = ',num2str(t)]), ylim([-1 1.5])
+%plot([x0;X_An1;x1],[u_l;U_A;u_r]), title(['t = ',num2str(t)]), ylim([-1 1.5])
 %if isequal(mesh,'moving')
 %    hold on
 %    plot(monitor.x,monitor.M,'g-')

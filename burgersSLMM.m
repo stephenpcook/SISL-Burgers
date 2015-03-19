@@ -1,4 +1,4 @@
-%function burgersSLMM()
+%function [U_A,X_An1] = burgersSLMM(N,tN)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -12,15 +12,18 @@
 clear all
 clf
 
-% Parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               Parameters              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % General Parameters
 N=21;       % Level of spacial discretisation
-K=40;         % Departure point iterations
 tN = 150;     % Number of timesteps
+K=40;         % Departure point iterations
 theta_t=1/2;  % Theta for the Theta method in time.
 theta_x=1/2;  % Theta for the Theta-method for departure points.
 epsilon=0.0001 ; % Epsilon in the PDE
 
+% Domain Parameters
 x0 = -1;
 x1 = 4;
 Dx= (x1-x0)./(N+1); % Space step
@@ -28,6 +31,20 @@ Dx= (x1-x0)./(N+1); % Space step
 t0 = 0;
 tmax = 1.5;   % Final time
 Dt = (tmax-t0)/tN;
+
+% Initial and boundary conditions
+%u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
+%u_l = 1; u_r = 1;
+c = 1;
+alpha = 0.5;
+u0 = @(x) c - alpha*tanh(alpha/(2*epsilon)*(x - c*t0));
+u_l = u0(x0);
+u_r = u0(x1);
+
+% Plot parameters
+%plotlims = [-0.5, 1.5];
+plotlims = [c-alpha-0.1, c+alpha+0.1];
+plotting = 1;
 
 % Mesh Parameters
 %mesh = 'static';
@@ -40,46 +57,43 @@ interpolation = 'linear';
 %interpolation = 'CLagrange';
 %interpolation = 'pchip';
 
-b = 1;                 % Parameter for the monitor function.
+% Monitor function parameters
+b = 0.1;
 m=@(x,u,uprime) sqrt(b + uprime.^2);
 %m=@(x,u,uprime)ones(size(u))
 p_smooth = 5;
 tau =1;
 with_euler = 1;
 
-
-% Initial and boundary conditions
-u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x));
-%c = 1; alpha = 0.5;
-%u0 = @(x) c - alpha*tanh(alpha/(2*epsilon)*(x - c*t0));
-u_l = u0(x0);
-u_r = u0(x1);
-
-% Matrices to be used. Tridiagonal, so could be done more efficiently
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%            START OF CODE              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Matrices to be used. Tridiagonal, so could be solved more efficiently
 
 % del2 - \delta_x^2, a tridiagonal matrix, finite difference second 
 % derivative operator.
-del2 = -2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1);
+del2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
 % LHS and RHS of SISL formulation
 M_RHS = eye(N) + Dt/(Dx^2) * (1 - theta_t) * epsilon * del2;
 M_LHS = eye(N) - Dt/(Dx^2) * theta_t * epsilon * del2;
 BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
-X0 = x0;
 X = x0 + (1:N)'*Dx;
-XN = x1;
 Dxi = 1/(N+1);
-%X = X.^2;
 Un = u0(X);
 X_An = X;
 TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
 dept_convergence = zeros(K,length(TT));
+bigXstar = zeros(tN,1);
 uout= XX;
 uout(1,:) = Un;
 %jj=1; % Counting variable for saving entries to uout.
+X_An1 = X_An;
+DX_An = diff([x0;X_An;x1]);
+DX_An1 = diff([x0;X_An1;x1]);
 
 del2n1 = del2;
 del2n = eye(N);
@@ -93,6 +107,8 @@ for tt = 1:length(TT)
 % Cubic spline of Un (including the constant end points)  
 
 % Mesh movement
+if strcmp(mesh, 'static')
+else
 switch mesh
     case 'static'
         X_An1 = X;
@@ -102,11 +118,17 @@ switch mesh
         % prescribed mesh, loaded from file, innit.
 	% Not yet done, static for now.
         X_An1 = X;
+        if tt>=floor(tN/2)
+          Xi = (1:N)'./(N+1);
+          alpha_p = 0.9;
+          X_An1 = x0 + (alpha_p*Xi.^2 + (1-alpha_p)*Xi)*(x1-x0);
+        end
     case 'moving-exact'
         %XN = [x0;X_An;x1];
         U = [u_l;Un;u_r];
         X_ = [x0;X_An;x1];
-        DUDX = [u_l;diff(U)]./[X_An(1)-x0;diff(X_)];
+        % TODO what is going on here?
+        DUDX = [U(2) - u_l;diff(U)]./[X_An(1)-x0;diff(X_)];
         if with_euler
             Uhat = U + Dt*fwd_euler(U,X_,epsilon);
             DUhatDX = [u_l;diff(Uhat)]./[X_An(1)-x0;diff(X_)];
@@ -188,30 +210,27 @@ end
 del2n1(N,N-1) = 2/(DX_An1(N)*(DX_An1(N+1)+DX_An1(N)));
 del2n1(N,N) = -2/(DX_An1(N+1)*DX_An1(N));
 
-BCn1(1) = 2*u_l/(DX_An1(2)*(DX_An1(1)+DX_An1(2)));
-BCn1(N) = 2*u_r/(DX_An1(N)*(DX_An1(N)+DX_An1(N+1)));
+BCn1(1) = 2*u_l/(DX_An1(1)*(DX_An1(1)+DX_An1(2)));
+BCn1(N) = 2*u_r/(DX_An1(N+1)*(DX_An1(N)+DX_An1(N+1)));
 
 M_LHS = eye(N) - Dt * theta_t * epsilon * del2n1;
 
-%del2n(1,1) = -2/(DX_An(2)*DX_An(1));
-%del2n(1,2) = 2/(DX_An(2)*(DX_An(2)+DX_An(1)));
-%for ii=2:(N-1)
-%    del2n(ii,ii-1) = 2/(DX_An(ii)*(DX_An(ii+1)+DX_An(ii)));
-%    del2n(ii,ii) = -2/(DX_An(ii)*DX_An(ii+1));
-%    del2n(ii,ii+1) = 2/(DX_An(ii+1)*(DX_An(ii+1)+DX_An(ii)));
-%end
-%del2n(N,N-1) = 2/(DX_An(N-1)*(DX_An(N)+DX_An(N-1)));
-%del2n(N,N) = -2/(DX_An(N)*DX_An(N-1));
 M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2n;
+end % if mesh not static
 
 % Make the spline for interpolation
 % TODO Could use a higher order term by using u_l, u(1),u(2) and u(3), like in burgers.m
-rhs0 = u_l - Dt * (1-theta_t) * epsilon *...
-    (DX_An1(2)*u_l - (DX_An1(1)+DX_An1(2))*Un(1) + DX_An1(1)*Un(2))/...
-    (1/2*DX_An1(1)*DX_An1(2)*(DX_An1(1)+DX_An1(2))); % This is an O(h) approx'n to u''
-rhsN = u_r - Dt * (1-theta_t) * epsilon *...
-    (DX_An1(N)*u_r - (DX_An1(N)+DX_An1(N+1))*Un(N) + DX_An1(N+1)*Un(N-1))/...
-    (1/2*DX_An1(N)*DX_An1(N+1)*(DX_An1(N)+DX_An1(N+1))); 
+rhs0 = u_l + Dt * (1-theta_t) * epsilon *...
+    (DX_An(2)*u_l - (DX_An(1)+DX_An(2))*Un(1) + DX_An(1)*Un(2))/...
+    (1/2*DX_An(1)*DX_An(2)*(DX_An(1)+DX_An(2))); % This is an O(h) approx'n to u''
+rhsN = u_r + Dt * (1-theta_t) * epsilon *...
+    (DX_An(N)*u_r - (DX_An(N)+DX_An(N+1))*Un(N) + DX_An(N+1)*Un(N-1))/...
+    (1/2*DX_An(N)*DX_An(N+1)*(DX_An(N)+DX_An(N+1)));
+% TODO This is wrong for non-static meshes, this is a slight improvement
+% but not much.
+rhs0 = u_l;
+rhsN = u_r;
+
 switch interpolation
     case 'linear'
         pp_rhs = interp1([x0;X_An;x1],...
@@ -263,22 +282,27 @@ X_An = X_An1;
 Un = U_A;
 %jj=jj+1;
 uout(tt,:) = Un;
+%[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c);
 %%% And plot %%% 
-%plot([x0;X_An1;x1],[u_l;U_A;u_r]), title(['t = ',num2str(t)]), ylim([-1 1.5])
-%if isequal(mesh,'moving')
-%    hold on
-%    plot(monitor.x,monitor.M,'g-')
-%    hold off
-%end
-%drawnow()
-XX(tt,:) = X_An;
-bigX_D(tt,:) = X_D;
+if plotting
+  plot([x0;X_An1;x1],[u_l;U_A;u_r])
+  title(['t = ',num2str(t)]), ylim(plotlims)
+  %if isequal(mesh,'moving')
+  %    hold on
+  %    plot(monitor.x,monitor.M,'g-')
+  %    hold off
+  %end
+  drawnow()
+  XX(tt,:) = X_An;
+  bigX_D(tt,:) = X_D;
+end % if plotting
 end % for t
 %pause
+figure
 for i = 1:N
-    plot(XX(:,i),TT)
-    hold on
-    %plot(bigX_D(:,i),TT,'g-')
+   plot(XX(:,i),TT)
+   hold on
+   %plot(bigX_D(:,i),TT,'g-')
 end
 
 % Okay, only want ~200 frames in the movie.
@@ -287,4 +311,3 @@ mk_video('test.avi',vtitle,TT(1:t_skip:end),uout(1:t_skip:end,:),...
     XX(1:t_skip:end,:))
 
 %end % function main
-

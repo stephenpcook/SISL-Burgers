@@ -1,4 +1,4 @@
-%function [U_A,X_An1] = burgersSLMM(N,tN)
+function [U_A,X_An1] = burgersSLMM(N,tN)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -9,15 +9,15 @@
 % ~/dos/MATLAB/ppval_lim.m
 % ~/dos/MATLAB/mk_video.m
 
-clear all
-clf
+%clear all
+%clf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               Parameters              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % General Parameters
-N=21;       % Level of spacial discretisation
-tN = 150;     % Number of timesteps
+%N=21;       % Level of spacial discretisation
+%tN = 150;     % Number of timesteps
 K=40;         % Departure point iterations
 theta_t=1/2;  % Theta for the Theta method in time.
 theta_x=1/2;  % Theta for the Theta-method for departure points.
@@ -47,9 +47,9 @@ plotlims = [c-alpha-0.1, c+alpha+0.1];
 plotting = 1;
 
 % Mesh Parameters
-%mesh = 'static';
+mesh = 'static';
 %mesh = 'prescribed';
-mesh = 'moving-exact';  % Mesh movement type
+%mesh = 'moving-exact';  % Mesh movement type
 %mesh = 'moving-relax';  % Mesh movement type
 limiter = 1;        % Flux limiter for interpolation
 interpolation = 'linear';
@@ -62,7 +62,7 @@ b = 0.1;
 m=@(x,u,uprime) sqrt(b + uprime.^2);
 %m=@(x,u,uprime)ones(size(u))
 p_smooth = 5;
-tau =1;
+tau =100;
 with_euler = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,8 +74,8 @@ with_euler = 1;
 % derivative operator.
 del2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
 % LHS and RHS of SISL formulation
-M_RHS = eye(N) + Dt/(Dx^2) * (1 - theta_t) * epsilon * del2;
-M_LHS = eye(N) - Dt/(Dx^2) * theta_t * epsilon * del2;
+M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2;
+M_LHS = eye(N) - Dt * theta_t * epsilon * del2;
 BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
@@ -249,8 +249,8 @@ end
 
 % Initial guess of departure points.
 X_D = X_An1 - Dt*Un;
-X_D(X_D<x0) = x0;
-X_D(X_D>x1) = x1;
+%X_D(X_D<x0) = x0;
+%X_D(X_D>x1) = x1;
  % Inner loop. 
  for k = 1:K
  % Evaluate RHS at the departure points.
@@ -266,8 +266,8 @@ X_D(X_D>x1) = x1;
  % RHS_D and U_A. 
  X_D_old = X_D;
  X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
- X_D(X_D<x0) = x0;
- X_D(X_D>x1) = x1;
+ %X_D(X_D<x0) = x0;
+ %X_D(X_D>x1) = x1;
  dept_convergence(k,tt) = norm(X_D - X_D_old);
  %rhs_D = ppval(pp_rhs, X_D);
  if limiter
@@ -303,18 +303,18 @@ end % if plotting
 end % for t
 
 if plotting
-%pause
-figure
-for i = 1:N
-   plot(XX(:,i),TT)
-   hold on
-   %plot(bigX_D(:,i),TT,'g-')
-end % for i
+% pause
+% figure
+% for i = 1:N
+%    plot(XX(:,i),TT)
+%    hold on
+%    %plot(bigX_D(:,i),TT,'g-')
+% end % for i
 end % if plotting
 
 % Okay, only want ~200 frames in the movie.
-t_skip = ceil(length(TT)/200);
-mk_video('test.avi',vtitle,TT(1:t_skip:end),uout(1:t_skip:end,:),...
-    XX(1:t_skip:end,:))
+%t_skip = ceil(length(TT)/200);
+%mk_video('test.avi',vtitle,TT(1:t_skip:end),uout(1:t_skip:end,:),...
+%    XX(1:t_skip:end,:))
 
-%end % function main
+end % function main

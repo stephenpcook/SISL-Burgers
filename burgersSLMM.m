@@ -249,6 +249,8 @@ end
 
 % Initial guess of departure points.
 X_D = X_An1 - Dt*Un;
+X_D(X_D<x0) = x0;
+X_D(X_D>x1) = x1;
  % Inner loop. 
  for k = 1:K
  % Evaluate RHS at the departure points.
@@ -264,6 +266,8 @@ X_D = X_An1 - Dt*Un;
  % RHS_D and U_A. 
  X_D_old = X_D;
  X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
+ X_D(X_D<x0) = x0;
+ X_D(X_D>x1) = x1;
  dept_convergence(k,tt) = norm(X_D - X_D_old);
  %rhs_D = ppval(pp_rhs, X_D);
  if limiter
@@ -297,13 +301,16 @@ if plotting
   bigX_D(tt,:) = X_D;
 end % if plotting
 end % for t
+
+if plotting
 %pause
 figure
 for i = 1:N
    plot(XX(:,i),TT)
    hold on
    %plot(bigX_D(:,i),TT,'g-')
-end
+end % for i
+end % if plotting
 
 % Okay, only want ~200 frames in the movie.
 t_skip = ceil(length(TT)/200);

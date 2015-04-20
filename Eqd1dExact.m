@@ -58,41 +58,84 @@ function xout = equidistribute(x0,x_m,Mx)
     % PUT THIS INTO SUBFUNCTION. FOR ANALYTIC M CAN ITERATE THIS. (Converge?)
     
     % PART 1
-    % Integrate M over x_m by the composite Trapezium Rule
-    Nm = length(x_m);
-    IntMi = zeros(1,Nm-1); % Integral of each element
-    cIM = zeros(1,Nm-1); % Cumilitive Integral of M.
-    for ii = 1:Nm-1 
-      IntMi(ii) = 1/2*(Mx(ii)+Mx(ii+1))*(x_m(ii+1)-x_m(ii)); % Trapezium 
-    end % for ii
-    cIM=cumsum(IntMi); % Cumilitive integral, from 0 to x_m.
-    IntM = sum(IntMi); % Integral of whole interval. 
-    % AGAIN NEED TO BE CLEVERERER
+    if 0 % OLD CODE
+    %  % Integrate M over x_m by the composite Trapezium Rule
+    %  Nm = length(x_m);
+    %  IntMi = zeros(1,Nm-1); % Integral of each element
+    %  cIM = zeros(1,Nm-1); % Cumilitive Integral of M.
+    %  for ii = 1:Nm-1 
+    %    IntMi(ii) = 1/2*(Mx(ii)+Mx(ii+1))*(x_m(ii+1)-x_m(ii)); % Trapezium 
+    %  end % for ii
+    %  cIM=cumsum(IntMi); % Cumilitive integral, from 0 to x_m.
+    %  IntM = sum(IntMi); % Integral of whole interval. 
+    %  % AGAIN NEED TO BE CLEVERERER
 
-    % Place the points of x to satisty equidistribution.
-    xout = zeros(size(x0));
-    Nx = length(x0);
-    x_h = 1/(Nx-1);
-    % if (x(1) == x_m(1)) good, else do clever, end
-    xout(1) = x0(1);
-    Mi=1; % Index of cIM (left point), 1 to Nm-1
-    for ii = 2:N
-	Target = (ii-1)*x_h*IntM; % Target integral.
-	while and(Mi<Nm-1,cIM(Mi)<=Target); % Find the right interval.
-					   % Mi is the index of interval and the
-					   % left side interval
-	    Mi = Mi + 1;
-	end % while
-	xL = x_m(Mi);
-	xR = x_m(Mi+1);
-	if Mi==1
-        ML=0;
-    else
-        ML = cIM(Mi-1);
+    %  % Place the points of x to satisty equidistribution.
+    %  xout = zeros(size(x0));
+    %  Nx = length(x0);
+    %  x_h = 1/(Nx-1);
+    %  % if (x(1) == x_m(1)) good, else do clever, end
+    %  xout(1) = x0(1);
+    %  Mi=1; % Index of cIM (left point), 1 to Nm-1
+    %  for ii = 2:N
+    %      Target = (ii-1)*x_h*IntM; % Target integral.
+    %      while and(Mi<Nm-1,cIM(Mi)<=Target); % Find the right interval.
+    %      				   % Mi is the index of interval and the
+    %      				   % left side interval
+    %          Mi = Mi + 1;
+    %      end % while
+    %      xL = x_m(Mi);
+    %      xR = x_m(Mi+1);
+    %      if Mi==1
+    %      ML=0;
+    %  else
+    %      ML = cIM(Mi-1);
+    %  end
+    %      M_in = IntMi(Mi);
+    %      xout(ii) = xL + (Target-ML)*(xR - xL)/(M_in);
+    %      s = (Mx(Mi+1) - Mx(Mi))/(xR-xL);
+    %      xout(ii) = xL + sqrt(2*(Target - ML)/s + (Mx(Mi)/s)^2) - Mx(Mi)/s;
+    %  end % for ii
     end
-	M_in = IntMi(Mi);
-        xout(ii) = xL + (Target-ML)*(xR - xL)/(M_in);
+    X = x_m;
+    U = Mx;
+    N = length(x0) - 1;
+    
+    Y = zeros(size(x0));
+    
+    intUi = 1/2*(U(1:end-1)+U(2:end)).*(diff(X));
+    intU = [0;cumsum(intUi(:))];
+    theta = intU(end);
+    
+    Y(1) = X(1);
+    jj = 1;
+    for ii = 1:N-1
+    Target = ii/N * theta;
+    while and(intU(jj) < Target, jj<N)
+        jj = jj + 1;
+    end
+    jj = jj - 1;
+    
+    XL = X(jj);
+    UL = U(jj);
+    intUL = intU(jj);
+    
+    XR = X(jj+1);
+    UR = U(jj+1);
+    
+    target_local = Target - intUL;
+    m = (UR-UL)/(XR-XL);
+    
+    if m==0
+      Y(ii+1) = XL + target_local/UL;
+    else
+      Y(ii+1) = XL + (-UL + sqrt(UL^2 + 2*m*target_local))/m;
+    end % if m==0
+    
     end % for ii
+    Y(N+1) = X(N+1);
+
+    xout = Y;
 end
 
 function M=getM(Monitor)

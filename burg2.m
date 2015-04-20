@@ -1,17 +1,18 @@
+function [Un,X_A] = burg2(N,Nt)
 % A light-weight SISL burgers solver.
 %
 % Uniform grid, linear interpolation, Crank-Nicholson-like Departure points
 
-clear all
+%clear all
 
 % Parameters
-N = 300;
-Nt = 3000;
-K = 4;
+%N = 300;
+%Nt = 3000;
+K = 40;
 
 t0 = 0;
 tmax = 1;
-epsilon = 0.002;
+epsilon = 0.0001;
 alpha = 0.5;
 
 %x_l = 0;
@@ -23,6 +24,8 @@ x_r = 4;
 c = 1;
 alpha_ = 0.5;
 u0 = @(x) c - alpha_*tanh(alpha/(2*epsilon)*(x - c*t0));
+
+plotting = 0;
 plotlims = [0 1.6];
 
 % Setup
@@ -53,9 +56,13 @@ for tt = 1:Nt
       % Calculate departure points
       X_D_old = X_D;
       X_D = X_A - Dt*Unplus1;
+      X_D(X_D<x_l) = x_l;
+      X_D(X_D>x_r) = x_r;
       for ll = 1:2
         Un_D = interp1(X_A_bc,[u_l;Un;u_r],X_D);
         X_D = X_A - Dt*(0.5*Unplus1 + 0.5*Un_D);
+        X_D(X_D<x_l) = x_l;
+        X_D(X_D>x_r) = x_r;
       end
       R_D = interp1(X_A_bc,[u_l;B*Un + (1-alpha)*C;u_r],X_D); % No u_xx on x_l, x_r
       Unplus1 = Ainv*(R_D + alpha*C);
@@ -66,16 +73,20 @@ for tt = 1:Nt
     U_out(:,tt) = Unplus1;
 end % for tt
 
-for tt = 1:Nt
-plot(X_A_bc,[u_l;U_out(:,tt);u_r])
-ylim(plotlims)
-drawnow
-end
+if plotting
+  for tt = 1:Nt
+  plot(X_A_bc,[u_l;U_out(:,tt);u_r])
+  ylim(plotlims)
+  drawnow
+  end
+  
+%  myt = 1001;
+%  for kk = 1:K
+%    for i = 1:N
+%      plot([X_D_out(i,myt,kk),X_A(i)],[0,1]), hold on
+%    end % for i
+%    pause, hold off
+%  end % for kk
+end % if plotting
 
-myt = 1001;
-for kk = 1:K
-  for i = 1:N
-    plot([X_D_out(i,myt,kk),X_A(i)],[0,1]), hold on
-  end % for i
-  pause, hold off
-end % for kk
+end % function

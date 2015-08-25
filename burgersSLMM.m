@@ -36,7 +36,7 @@ Dt = (tmax-t0)/tN;
 %u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
 %u_l = 1; u_r = 1;
 c = 1;
-alpha = 0.5;
+alpha = 0.1;
 u0 = @(x) c - alpha*tanh(alpha/(2*epsilon)*(x - c*t0));
 u_l = u0(x0);
 u_r = u0(x1);
@@ -55,6 +55,7 @@ limiter = 1;        % Flux limiter for interpolation
 interpolation = 'linear';
 %interpolation = 'CSpline';
 %interpolation = 'CLagrange';
+%interpolation = 'ENO';
 %interpolation = 'pchip';
 
 % Monitor function parameters
@@ -70,7 +71,7 @@ with_euler = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Matrices to be used. Tridiagonal, so could be solved more efficiently
 
-% del2 - \delta_x^2, a tridiagonal matrix, finite difference second 
+% del2 - \delta_x^2, a tridiagonal matrix, finite difference second
 % derivative operator.
 del2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
 % LHS and RHS of SISL formulation
@@ -104,7 +105,7 @@ BCn = zeros(N,1);
 for tt = 1:length(TT)
     t = TT(tt);
 % Timestep initialisation
-% Cubic spline of Un (including the constant end points)  
+% Cubic spline of Un (including the constant end points)
 
 % Mesh movement
 if strcmp(mesh, 'static')
@@ -136,7 +137,7 @@ switch mesh
             % TODO Want to try to predict the future time with an explicit
             % semi-lagrangian scheme!
             Uhat = U + Dt*fwd_euler(U,X_,epsilon);
-            DUhatDX = [U(2)-u_l;diff(Uhat)]./[X_An(1)-x0;diff(X_)];
+            DUhatDX = [Uhat(2)-Uhat(1);diff(Uhat)]./[X_(2)-X_(1);diff(X_)];
             M = m(X_,Uhat,DUhatDX);
         else
             M = m(X_,U,DUDX);
@@ -159,10 +160,10 @@ switch mesh
 	vtitle = ['Semi-Lagrangian Burgers, moving mesh (exact), N = '...
 	,num2str(N)];
     case 'moving-relax'
-        % This is different from the above method, in that 
-        % we solve a moving mesh PDE to get the movement, 
+        % This is different from the above method, in that
+        % we solve a moving mesh PDE to get the movement,
         % and to do the we take M to sit at the midpoints.
-        
+
         X_ = [x0;X_An;x1];
         %XN = X_;
         U = [u_l;Un;u_r];
@@ -203,7 +204,7 @@ DX_An1 = diff([x0;X_An1;x1]);
 del2n = del2n1;
 BCn = BCn1;
 
-% Build up the LHS and RHS tridiagonal matrix. Can recycle these 
+% Build up the LHS and RHS tridiagonal matrix. Can recycle these
 % and get 2 uses out of each del2 matrix (only redo one)
 del2n1(1,1) = -2/(DX_An1(2)*DX_An1(1));
 del2n1(1,2) = 2/(DX_An1(2)*(DX_An1(2)+DX_An1(1)));
@@ -248,6 +249,9 @@ switch interpolation
     case 'CLagrange'
         pp_rhs = interp1cubicL([x0;X_An;x1],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
+    case 'ENO'
+        pp_rhs = interp_ENO([x0;X_An;x1],...
+          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'pchip'
         pp_rhs = pchip([x0;X_An;x1],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
@@ -257,7 +261,7 @@ end
 X_D = X_An1 - Dt*Un;
 X_D(X_D<x0) = x0;
 X_D(X_D>x1) = x1;
- % Inner loop. 
+ % Inner loop.
  for k = 1:K
  % Evaluate RHS at the departure points.
  switch interpolation
@@ -271,11 +275,11 @@ X_D(X_D>x1) = x1;
        rhs_D = ppval(pp_rhs, X_D);
      end % if limiter
  end % switch interpolation
- 
+
  % Solve the implicit equation (Thomas algorithm implemented later)
  U_A = M_LHS\(rhs_D + Dt*theta_t*epsilon*BCn1);
- % New guess at the departure points (theta-method) and recalculate 
- % RHS_D and U_A. 
+ % New guess at the departure points (theta-method) and recalculate
+ % RHS_D and U_A.
  X_D_old = X_D;
  X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
  X_D(X_D<x0) = x0;
@@ -298,7 +302,7 @@ Un = U_A;
 %jj=jj+1;
 uout(tt,:) = Un;
 %[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c);
-%%% And plot %%% 
+%%% And plot %%%
 if plotting
   plot([x0;X_An1;x1],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
@@ -311,7 +315,7 @@ if plotting
   XX(tt,:) = X_An;
   bigX_D(tt,:) = X_D;
 end % if plotting
-end % for t
+end % for tt
 
 if plotting
 % pause

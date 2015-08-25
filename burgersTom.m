@@ -41,12 +41,14 @@ end
 for n = 1:nt
 % compute rn
   rn = un;
-  rn(2:nx-1) = rn(2:nx-1) - (1-alpha)*dt*epsilon*(un(3:nx) - 2*un(2:nx-1) + un(1:nx-2))/dx^2;  
+  rn(2:nx-1) = rn(2:nx-1) - (1-alpha)*dt*epsilon*(un(3:nx) - 2*un(2:nx-1) + un(1:nx-2))/dx^2;
   for outer = 1:n_outer
 % compute departure points
     xd = x;
     for it = 1:n_dept
       un_d = interp1(x,un,xd,'linear');
+      %un_pp = interp_ENO(x,un);
+      %un_d = ppval(un_pp, xd);
       xd = x - dt/2*(unp1 + un_d);
       for i = 1:nx
         if ( xd(i) < 0 )
@@ -54,16 +56,18 @@ for n = 1:nt
 	elseif ( xd(i) > 5 )
 	  xd(i) = 5;
 	end
-      end 
+      end
     end
 % interpolate rn
     rn_d = interp1(x,rn,xd,'linear');
+    %rn_pp = interp_ENO(x,rn);
+    %rn_d = ppval(rn_pp, xd);
 % solve
     unp1 = lhs\rn_d;
 
   end
   un = unp1;
-% Eulerian solution    
+% Eulerian solution
   unp1_eul = un_eul;
   unp1_eul(2:nx-1) = unp1_eul(2:nx-1) - dt*epsilon*(un_eul(3:nx) - 2*un_eul(2:nx-1) + un_eul(1:nx-2))/dx^2;
   unp1_eul(2:nx-1) = unp1_eul(2:nx-1) - dt*1/6*(un_eul(2:nx-1)+4*un_eul(2:nx-1)+un_eul(2:nx-1)).*(un_eul(3:nx) - un_eul(1:nx-2))/(2*dx);

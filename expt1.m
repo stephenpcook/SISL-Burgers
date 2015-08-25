@@ -1,4 +1,4 @@
-% Runs one of the programs for a number of N and TN, and tabulates the 
+% Runs one of the programs for a number of N and TN, and tabulates the
 % results.
 
 program_name = 'burg2';
@@ -14,7 +14,7 @@ bigN = 20:1:640;
 bigTN = [40,80,160]';
 
 c = 1;
-alpha = 0.5;
+alpha = 0.1;
 epsilon=0.0001;
 t_max = 1.5;
 grad = -alpha^2/(2*epsilon);

@@ -11,7 +11,7 @@ function [Un,X_A] = burg2(N,Nt)
 K = 40;
 
 t0 = 0;
-tmax = 1;
+tmax = 1.5;
 epsilon = 0.0001;
 alpha = 0.5;
 
@@ -22,8 +22,14 @@ alpha = 0.5;
 x_l = -1;
 x_r = 4;
 c = 1;
-alpha_ = 0.5;
-u0 = @(x) c - alpha_*tanh(alpha/(2*epsilon)*(x - c*t0));
+alpha_ = 0.1;
+u0 = @(x) c - alpha_*tanh(alpha_/(2*epsilon)*(x - c*t0));
+
+%tmax = 15;
+%x_l = -10;
+%x_r = 40;
+%u0 = @(x) c - alpha_*tanh(alpha_/(2*epsilon)*(x - c*t0));
+
 
 plotting = 0;
 plotlims = [0 1.6];
@@ -65,6 +71,8 @@ for tt = 1:Nt
         X_D(X_D>x_r) = x_r;
       end
       R_D = interp1(X_A_bc,[u_l;B*Un + (1-alpha)*C;u_r],X_D); % No u_xx on x_l, x_r
+      %ENO_pp = interp_ENO(X_A_bc,[u_l;B*Un + (1-alpha)*C;u_r]);
+      %R_D = ppval(ENO_pp, X_D);
       Unplus1 = Ainv*(R_D + alpha*C);
       X_D_out(:,tt,kk) = X_D;
       X_D_diff = X_D - X_D_old;
@@ -79,7 +87,7 @@ if plotting
   ylim(plotlims)
   drawnow
   end
-  
+
 %  myt = 1001;
 %  for kk = 1:K
 %    for i = 1:N

@@ -2,12 +2,14 @@ function [U_A,X_An1] = burgersSLMM(N,tN)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
+% ~/dos/MATLAB/Eqd1dExact.m
+% ~/dos/MATLAB/mk_video.m
+% And from subdirectories
 % ./mmpde5.m
 % ./fwd_euler.m
-% ~/dos/MATLAB/Eqd1dExact.m
-% ~/dos/MATLAB/interp1cubicL.m
-% ~/dos/MATLAB/ppval_lim.m
-% ~/dos/MATLAB/mk_video.m
+% ./interpolation/interp1cubicL.m
+% ./interpolation/ppval_lim.m
+old_path = addpath([pwd,'\interpolation']);
 
 %clear all
 %clf
@@ -340,4 +342,5 @@ end % if plotting
 %mk_video('test.avi',vtitle,TT(1:t_skip:end),uout(1:t_skip:end,:),...
 %    XX(1:t_skip:end,:))
 
+path(old_path);
 end % function main

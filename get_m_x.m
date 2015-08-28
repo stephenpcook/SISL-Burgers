@@ -1,4 +1,7 @@
 function [m,x_star,width] = get_m_x(U,X,c,alpha)
+% Calculate the final-time gradient, location and width of a tanh profile
+%
+% [m,x_star,width] = get_m_x(U,X,c,alpha)
 kk = 1;
 while U(kk)>c
   kk = kk+1;

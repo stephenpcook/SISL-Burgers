@@ -1,9 +1,13 @@
-function x = TDMAsolver(a,b,c,d) %a, b, c are the column vectors for the compressed tridiagonal matrix, d is the right vector 
+function x = TDMAsolver(a,b,c,d)
+% Tridiagonal matrix solver, taken from wikipedia
+
+%a, b, c are the column vectors for the compressed tridiagonal matrix, d is
+%the right vector
 
 n = length(d); % n is the number of rows
 
-% Modify the first-row coefficients 
-c(1) = c(1) / b(1);  % Division by zero risk. 
+% Modify the first-row coefficients
+c(1) = c(1) / b(1);  % Division by zero risk.
 d(1) = d(1) / b(1);
 
 for i = 2:n-1
@@ -16,8 +20,8 @@ end
 
 d(n) = (d(n) - a(n) * d(n-1))/( b(n) - a(n) * c(n-1));
 
-% Now back substitute. 
-x(n) = d(n); 
+% Now back substitute.
+x(n) = d(n);
 
 for i = n-1:-1:1
 

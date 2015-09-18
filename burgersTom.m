@@ -5,7 +5,7 @@ function [un,x] = burgersTom(nx,nt)
 %nt = 150;
 %dt = 0.01;
 dt = 1.5/nt;
-alpha = 0.5;
+alpha_0 = 0.5;
 epsilon = 10^-4;
 c = 1;
 h = 0.5;
@@ -33,15 +33,15 @@ for i = 1:nx
   lhs(i,i) = 1;
 end
 for i = 2:nx-1
-  lhs(i,i) =  lhs(i,i) - 2*alpha*dt*epsilon/dx^2;
-  lhs(i,i+1) = alpha*dt*epsilon/dx^2;
-  lhs(i,i-1) = alpha*dt*epsilon/dx^2;
+  lhs(i,i) =  lhs(i,i) - 2*alpha_0*dt*epsilon/dx^2;
+  lhs(i,i+1) = alpha_0*dt*epsilon/dx^2;
+  lhs(i,i-1) = alpha_0*dt*epsilon/dx^2;
 end
 
 for n = 1:nt
 % compute rn
   rn = un;
-  rn(2:nx-1) = rn(2:nx-1) - (1-alpha)*dt*epsilon*(un(3:nx) - 2*un(2:nx-1) + un(1:nx-2))/dx^2;
+  rn(2:nx-1) = rn(2:nx-1) - (1-alpha_0)*dt*epsilon*(un(3:nx) - 2*un(2:nx-1) + un(1:nx-2))/dx^2;
   for outer = 1:n_outer
 % compute departure points
     xd = x;

@@ -38,14 +38,14 @@ Dt = (tmax-t0)/tN;
 %u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
 %u_l = 1; u_r = 1;
 c = 1;
-alpha = 0.1;
-u0 = @(x) c - alpha*tanh(alpha/(2*epsilon)*(x - c*t0));
+alpha_0 = 0.1;
+u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
 u_l = u0(x0);
 u_r = u0(x1);
 
 % Plot parameters
 %plotlims = [-0.5, 1.5];
-plotlims = [c-alpha-0.1, c+alpha+0.1];
+plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 plotting = 1;
 
 % Mesh Parameters

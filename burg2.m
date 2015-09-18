@@ -13,7 +13,7 @@ K = 40;
 t0 = 0;
 tmax = 1.5;
 epsilon = 0.0001;
-alpha = 0.5;
+alpha_0 = 0.5;
 
 %x_l = 0;
 %x_r = 1;
@@ -45,9 +45,9 @@ X_A = X_A_bc(2:end-1);
 
 delta2 = 1/(Dx^2) * ...
     (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1));
-A = eye(N) - Dt*epsilon*alpha*delta2;
+A = eye(N) - Dt*epsilon*alpha_0*delta2;
 Ainv = A^(-1);
-B = eye(N) + Dt*epsilon*(1-alpha)*delta2;
+B = eye(N) + Dt*epsilon*(1-alpha_0)*delta2;
 C = Dt*epsilon/(Dx^2)*[u_l;zeros(N-2,1);u_r];
 
 % Initialisation
@@ -70,10 +70,10 @@ for tt = 1:Nt
         X_D(X_D<x_l) = x_l;
         X_D(X_D>x_r) = x_r;
       end
-      R_D = interp1(X_A_bc,[u_l;B*Un + (1-alpha)*C;u_r],X_D); % No u_xx on x_l, x_r
-      %ENO_pp = interp_ENO(X_A_bc,[u_l;B*Un + (1-alpha)*C;u_r]);
+      R_D = interp1(X_A_bc,[u_l;B*Un + (1-alpha_0)*C;u_r],X_D); % No u_xx on x_l, x_r
+      %ENO_pp = interp_ENO(X_A_bc,[u_l;B*Un + (1-alpha_0)*C;u_r]);
       %R_D = ppval(ENO_pp, X_D);
-      Unplus1 = Ainv*(R_D + alpha*C);
+      Unplus1 = Ainv*(R_D + alpha_0*C);
       X_D_out(:,tt,kk) = X_D;
       X_D_diff = X_D - X_D_old;
     end % for kk

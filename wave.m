@@ -11,21 +11,21 @@ x_N = 100;
 x_c_N = 11;
 x_l = 1;
 x_r = 0;
-alpha = (x_l - x_r)/2;
+alpha_0 = (x_l - x_r)/2;
 
 c = (x_l + x_r)/2;
 t_max = 1/c;
 
-beta = alpha/(2*epsilon);
+beta = alpha_0/(2*epsilon);
 T = t_max*(0:(t_N-1))./(t_N-1);
 dt = t_max/t_N;
 dx = 1/x_N;
 
 
 
-u = @(x,t) c - alpha*tanh(beta*(x-c*t));
-u_x = @(x,t) -alpha*beta*(1-tanh(beta*(x-c*t)).^2);
-u_xx = @(x,t) 2*alpha*beta^2*(tanh(beta*(x-c*t)) - ...
+u = @(x,t) c - alpha_0*tanh(beta*(x-c*t));
+u_x = @(x,t) -alpha_0*beta*(1-tanh(beta*(x-c*t)).^2);
+u_xx = @(x,t) 2*alpha_0*beta^2*(tanh(beta*(x-c*t)) - ...
                                tanh(beta*(x-c*t)).^3);
 x = (0:(x_N-1))./(x_N-1);
 x_coarse = (0:(x_c_N-1))./(x_c_N-1);
@@ -45,7 +45,7 @@ for ii = 1:t_N
     dUdX = u_x(x,tt);
     M.M = sqrt(b + dUdX.^2);
     xout(ii,:) = Eqd1dExact(x_coarse,M);
-        
+
     subplot(1,2,1)
     plot(x,u(x,tt))
     drawnow()
@@ -57,13 +57,13 @@ for ii = 1:(t_N-1)
     % departure points
     x_D(ii,:) = xout(ii+1,:) - dt*...
     1/2*(u(xout(ii+1,:),T(ii+1)) + u(xout(ii,:),T(ii)));
-    
+
 end
 
 F = @(x,t) u(x,t) + 1/2*epsilon*dt*u_xx(x,t);
 for ii = 1:(t_N-1)
     % interpolation error
-    % We are interpolating 
+    % We are interpolating
     %   u + epsilon*dt*1/2*u_xx
     %LHS_A = u(xout(ii,:),tt) + 1/2*epsilon*dt*u_xx(xout(ii,:),tt);
     %LHS_D = interp1(xout(ii,:),LHS_A,x_D(ii,:));
@@ -79,7 +79,7 @@ for ii = 1:(t_N-1)
     drawnow()
 end
 
-pause 
+pause
 
 plot(max(error,[],2),T)
 xlabel('Maximum interpolation error')
@@ -101,7 +101,7 @@ pause
 for ii = 1:(t_N-1)
     % departure points
     x_D_c(ii,:) = x_coarse - dt*u(x_coarse,T(ii+1));
-    
+
 end
 for ii = 1:(t_N-1)
     % interpolation error
@@ -119,7 +119,7 @@ for ii = 1:(t_N-1)
     drawnow()
 end
 
-pause 
+pause
 
 plot(max(error_s,[],2),T)
 xlabel('Maximum interpolation error')

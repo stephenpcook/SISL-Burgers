@@ -1,7 +1,7 @@
-function [m,x_star,width] = get_m_x(U,X,c,alpha)
+function [m,x_star,width] = get_m_x(U,X,c,alpha_0)
 % Calculate the final-time gradient, location and width of a tanh profile
 %
-% [m,x_star,width] = get_m_x(U,X,c,alpha)
+% [m,x_star,width] = get_m_x(U,X,c,alpha_0)
 kk = 1;
 while U(kk)>c
   kk = kk+1;
@@ -13,8 +13,8 @@ x_star = ((c - U(kk))/m + X(kk));
 
 f = griddedInterpolant(X,U);
 
-front_l = c + 0.95*alpha;
-front_r = c - 0.95*alpha;
+front_l = c + 0.95*alpha_0;
+front_r = c - 0.95*alpha_0;
 
 width = fzero(@(x)f(x) - front_r,x_star) - fzero(@(x)f(x) - front_l,x_star);
 

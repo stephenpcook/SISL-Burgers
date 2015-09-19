@@ -1,4 +1,4 @@
-function [U_A,X_An1] = burgersSLMM(N,tN)
+function [U_A,X_An1] = burgersSLMM(N,tN,param_file)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -14,63 +14,71 @@ old_path = addpath([pwd,'\interpolation']);
 %clear all
 %clf
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%               Parameters              %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% General Parameters
-%N=21;       % Level of spacial discretisation
-%tN = 150;     % Number of timesteps
-K=10;         % Departure point iterations
-theta_t=1/2;  % Theta for the Theta method in time.
-theta_x=1/2;  % Theta for the Theta-method for departure points.
-epsilon=0.0001 ; % Epsilon in the PDE
-
-% Domain Parameters
-x0 = -1;
-x1 = 4;
-Dx= (x1-x0)./(N+1); % Space step
-
-t0 = 0;
-tmax = 1.5;   % Final time
-Dt = (tmax-t0)/tN;
-
-% Initial and boundary conditions
-%u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
-%u_l = 1; u_r = 1;
-c = 1;
-alpha_0 = 0.1;
-u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
-u_l = u0(x0);
-u_r = u0(x1);
-
-% Plot parameters
-%plotlims = [-0.5, 1.5];
-plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
-plotting = 1;
-
-% Mesh Parameters
-%mesh = 'static';
-%mesh = 'prescribed';
-mesh = 'moving-exact';  % Mesh movement type
-%mesh = 'moving-relax';  % Mesh movement type
-limiter = 1;        % Flux limiter for interpolation
-interpolation = 'linear';
-%interpolation = 'CSpline';
-%interpolation = 'CLagrange';
-%interpolation = 'ENO';
-%interpolation = 'pchip';
-
-% Monitor function parameters
-b = 0.1;
-m=@(x,u,uprime) sqrt(b + uprime.^2);
-%m=@(x,u,uprime)ones(size(u))
-p_smooth = 5;
-tau =1;
-with_euler = 1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%          Default Parameters           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% General Parameters
+%%N=21;       % Level of spacial discretisation
+%%tN = 150;     % Number of timesteps
+%K=10;         % Departure point iterations
+%theta_t=1/2;  % Theta for the Theta method in time.
+%theta_x=1/2;  % Theta for the Theta-method for departure points.
+%epsilon=0.0001 ; % Epsilon in the PDE
+%
+%% Domain Parameters
+%x0 = -1;
+%x1 = 4;
+%
+%t0 = 0;
+%tmax = 1.5;   % Final time
+%
+%% Initial and boundary conditions
+%%u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
+%%u_l = 1; u_r = 1;
+%c = 1;
+%alpha_0 = 0.1;
+%u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
+%u_l = u0(x0);
+%u_r = u0(x1);
+%
+%% Plot parameters
+%%plotlims = [-0.5, 1.5];
+%plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
+%plotting = 1;
+%
+%% Mesh Parameters
+%%mesh = 'static';
+%%mesh = 'prescribed';
+%mesh = 'moving-exact';  % Mesh movement type
+%%mesh = 'moving-relax';  % Mesh movement type
+%limiter = 1;        % Flux limiter for interpolation
+%interpolation = 'linear';
+%%interpolation = 'CSpline';
+%%interpolation = 'CLagrange';
+%%interpolation = 'ENO';
+%%interpolation = 'pchip';
+%
+%% Monitor function parameters
+%b = 0.1;
+%m=@(x,u,uprime) sqrt(b + uprime.^2);
+%%m=@(x,u,uprime)ones(size(u))
+%p_smooth = 5;
+%tau =1;
+%with_euler = 1;
+%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %            START OF CODE              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+load('params_default');
+if nargin==3
+  load('param_file');
+end
+
+Dx= (x1-x0)./(N+1); % Space step
+Dt = (tmax-t0)/tN;  % Time step
+
 % Matrices to be used. Tridiagonal, so could be solved more efficiently
 
 % del2 - \delta_x^2, a tridiagonal matrix, finite difference second
@@ -110,9 +118,9 @@ for tt = 1:length(TT)
 % Cubic spline of Un (including the constant end points)
 
 % Mesh movement
-if strcmp(mesh, 'static')
+if strcmp(mesh_movement, 'static')
 else
-switch mesh
+switch mesh_movement
     case 'static'
         X_An1 = X;
 	vtitle = ['Semi-Lagrangian Burgers, static mesh, N = '...
@@ -308,7 +316,7 @@ uout(tt,:) = Un;
 if plotting
   plot([x0;X_An1;x1],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
-  %if isequal(mesh,'moving')
+  %if isequal(mesh_movement,'moving')
   %    hold on
   %    plot(monitor.x,monitor.M,'g-')
   %    hold off

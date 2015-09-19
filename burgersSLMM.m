@@ -49,10 +49,10 @@ plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 plotting = 1;
 
 % Mesh Parameters
-%mesh = 'static';
-%mesh = 'prescribed';
-mesh = 'moving-exact';  % Mesh movement type
-%mesh = 'moving-relax';  % Mesh movement type
+%mesh_movement = 'static';
+%mesh_movement = 'prescribed';
+mesh_movement = 'moving-exact';  % Mesh movement type
+%mesh_movement = 'moving-relax';  % Mesh movement type
 limiter = 1;        % Flux limiter for interpolation
 interpolation = 'linear';
 %interpolation = 'CSpline';
@@ -110,9 +110,9 @@ for tt = 1:length(TT)
 % Cubic spline of Un (including the constant end points)
 
 % Mesh movement
-if strcmp(mesh, 'static')
+if strcmp(mesh_movement, 'static')
 else
-switch mesh
+switch mesh_movement
     case 'static'
         X_An1 = X;
 	vtitle = ['Semi-Lagrangian Burgers, static mesh, N = '...
@@ -308,7 +308,7 @@ uout(tt,:) = Un;
 if plotting
   plot([x0;X_An1;x1],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
-  %if isequal(mesh,'moving')
+  %if isequal(mesh_movement,'moving')
   %    hold on
   %    plot(monitor.x,monitor.M,'g-')
   %    hold off

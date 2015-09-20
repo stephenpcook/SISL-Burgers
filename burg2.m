@@ -1,43 +1,54 @@
-function [Un,X_A] = burg2(N,Nt)
+function [Un,X_A] = burg2(N, Nt, param_file)
 % A light-weight SISL burgers solver.
 %
 % Uniform grid, linear interpolation, Crank-Nicholson-like Departure points
 
-% General Parameters
-%N = 300;
-%Nt = 3000;
-K = 40;
-theta_x = 0.5;
-epsilon = 0.0001;
+%% General Parameters
+%%N = 300;
+%%Nt = 3000;
+%K = 40;
+%theta_x = 0.5;
+%epsilon = 0.0001;
+%
+%c = 1;
+%alpha_0 = 0.1;
+%
+%% Domain parameters
+%x_l = -1;
+%x_r = 4;
+%
+%t0 = 0;
+%tmax = 1.5;
+%
+%% Initial and Boundary Conditions
+%
+%%x_l = 0;
+%%x_r = 1;
+%%u0 = @(x) sin(2*pi*x) + 1/2*sin(pi*x) - 0.5;
+%
+%u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
+%u_l = u0(x_l);
+%u_r = u0(x_r);
+%
+%%tmax = 15;
+%%x_l = -10;
+%%x_r = 40;
+%
+%% Plot parameters
+%%plotlims = [-2.5 2.5];
+%plotting = 0;
+%plotlims = [0 1.6];
 
-c = 1;
-alpha_0 = 0.1;
+old_path = addpath([pwd,'\options']);
 
-% Domain parameters
-x_l = -1;
-x_r = 4;
-
-t0 = 0;
-tmax = 1.5;
-
-% Initial and Boundary Conditions
-
-%x_l = 0;
-%x_r = 1;
-%u0 = @(x) sin(2*pi*x) + 1/2*sin(pi*x) - 0.5;
-
-u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
-u_l = u0(x_l);
-u_r = u0(x_r);
-
-%tmax = 15;
-%x_l = -10;
-%x_r = 40;
-
-% Plot parameters
-%plotlims = [-2.5 2.5];
-plotting = 0;
-plotlims = [0 1.6];
+load('params_default',...
+  'K', 'theta_x', 'epsilon', ...
+  'x_l', 'x_r', 't0', 'tmax',...
+  'c', 'alpha_0', 'u0', 'u_l', 'u_r',...
+  'plotting', 'plotlims');
+if nargin==3
+  load(param_file);
+end
 
 % Setup
 Dx = (x_r-x_l)/(N+1);
@@ -100,4 +111,5 @@ if plotting
 %  end % for kk
 end % if plotting
 
+path(old_path);
 end % function

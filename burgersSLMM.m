@@ -1,4 +1,4 @@
-function [U_A,X_An1] = burgersSLMM(N,tN,param_file)
+function [U_A,X_An1] = burgersSLMM(N, tN, param_file)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -9,7 +9,8 @@ function [U_A,X_An1] = burgersSLMM(N,tN,param_file)
 % ./fwd_euler.m
 % ./interpolation/interp1cubicL.m
 % ./interpolation/ppval_lim.m
-old_path = addpath([pwd,'\interpolation']);
+old_path = addpath([pwd,'\interpolation'],...
+                   [pwd,'\options']);
 
 %clear all
 %clf
@@ -26,8 +27,8 @@ old_path = addpath([pwd,'\interpolation']);
 %epsilon=0.0001 ; % Epsilon in the PDE
 %
 %% Domain Parameters
-%x0 = -1;
-%x1 = 4;
+%x_l = -1;
+%x_r = 4;
 %
 %t0 = 0;
 %tmax = 1.5;   % Final time
@@ -38,8 +39,8 @@ old_path = addpath([pwd,'\interpolation']);
 %c = 1;
 %alpha_0 = 0.1;
 %u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
-%u_l = u0(x0);
-%u_r = u0(x1);
+%u_l = u0(x_l);
+%u_r = u0(x_r);
 %
 %% Plot parameters
 %%plotlims = [-0.5, 1.5];
@@ -73,10 +74,10 @@ old_path = addpath([pwd,'\interpolation']);
 
 load('params_default');
 if nargin==3
-  load('param_file');
+  load(param_file);
 end
 
-Dx= (x1-x0)./(N+1); % Space step
+Dx= (x_r-x_l)./(N+1); % Space step
 Dt = (tmax-t0)/tN;  % Time step
 
 % Matrices to be used. Tridiagonal, so could be solved more efficiently
@@ -90,7 +91,7 @@ M_LHS = eye(N) - Dt * theta_t * epsilon * del2;
 BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
-X = x0 + (1:N)'*Dx;
+X = x_l + (1:N)'*Dx;
 Dxi = 1/(N+1);
 Un = u0(X);
 X_An = X;
@@ -103,8 +104,8 @@ uout= XX;
 uout(1,:) = Un;
 %jj=1; % Counting variable for saving entries to uout.
 X_An1 = X_An;
-DX_An = diff([x0;X_An;x1]);
-DX_An1 = diff([x0;X_An1;x1]);
+DX_An = diff([x_l;X_An;x_r]);
+DX_An1 = diff([x_l;X_An1;x_r]);
 
 del2n1 = del2;
 del2n = eye(N);
@@ -132,15 +133,15 @@ switch mesh_movement
         if tt>=floor(tN/2)
           Xi = (1:N)'./(N+1);
           alpha_p = 0.9;
-          X_An1 = x0 + (alpha_p*Xi.^2 + (1-alpha_p)*Xi)*(x1-x0);
+          X_An1 = x_l + (alpha_p*Xi.^2 + (1-alpha_p)*Xi)*(x_r-x_l);
         end
     case 'moving-exact'
         % TODO This is going really funky at x_l, Very wrong!
-        %XN = [x0;X_An;x1];
+        %XN = [x_l;X_An;x_r];
         U = [u_l;Un;u_r];
-        X_ = [x0;X_An;x1];
+        X_ = [x_l;X_An;x_r];
         % TODO what is going on here?
-        DUDX = [U(2) - u_l;diff(U)]./[X_An(1)-x0;diff(X_)];
+        DUDX = [U(2) - u_l;diff(U)]./[X_An(1)-x_l;diff(X_)];
         if with_euler
             % TODO This looks nasty, have a look at Uhat whilst it's
             % running
@@ -174,7 +175,7 @@ switch mesh_movement
         % we solve a moving mesh PDE to get the movement,
         % and to do the we take M to sit at the midpoints.
 
-        X_ = [x0;X_An;x1];
+        X_ = [x_l;X_An;x_r];
         %XN = X_;
         U = [u_l;Un;u_r];
         DUDX = diff(U)./diff(X_);    % ! Sits at the midpoints
@@ -189,11 +190,11 @@ switch mesh_movement
             M = conv(M,[1/4,1/2,1/4],'same');  % Using convolution
             M = M(2:end-1); % Undo the first line of this loop.
         end % iii
-        M=M./(trapz(1/2*([x0;X_An]+[X_An;x1]),M)); % normalise
+        M=M./(trapz(1/2*([x_l;X_An]+[X_An;x_r]),M)); % normalise
         M = 1/2 + M./2;             % Average
         %
         x = X_;
-        %monitor.M = m([x0;X_An;x1],U,DUDX);
+        %monitor.M = m([x_l;X_An;x_r],U,DUDX);
         % Spline it!
         M_pp = spline(x,mmpde5(M,x,Dxi,tau));
         [~,ode_out] = ode15s(@(t,x_)ppval(M_pp,x_),[0 Dt],x);
@@ -208,8 +209,8 @@ switch mesh_movement
         X_An1 = X;
 end % switch
 
-DX_An = diff([x0;X_An;x1]);
-DX_An1 = diff([x0;X_An1;x1]);
+DX_An = diff([x_l;X_An;x_r]);
+DX_An1 = diff([x_l;X_An1;x_r]);
 
 del2n = del2n1;
 BCn = BCn1;
@@ -250,27 +251,27 @@ rhsN = u_r;
 switch interpolation
     case 'linear'
         % TODO change this to griddedinterpolant
-        pp_rhs = interp1([x0;X_An;x1],...
+        pp_rhs = interp1([x_l;X_An;x_r],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN],...
             'linear','pp');
     case 'CSpline'
-        pp_rhs = spline([x0;X_An;x1],...
+        pp_rhs = spline([x_l;X_An;x_r],...
         [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'CLagrange'
-        pp_rhs = interp1cubicL([x0;X_An;x1],...
+        pp_rhs = interp1cubicL([x_l;X_An;x_r],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'ENO'
-        pp_rhs = interp_ENO([x0;X_An;x1],...
+        pp_rhs = interp_ENO([x_l;X_An;x_r],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'pchip'
-        pp_rhs = pchip([x0;X_An;x1],...
+        pp_rhs = pchip([x_l;X_An;x_r],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
 end
 
 % Initial guess of departure points.
 X_D = X_An1 - Dt*Un;
-X_D(X_D<x0) = x0;
-X_D(X_D>x1) = x1;
+X_D(X_D<x_l) = x_l;
+X_D(X_D>x_r) = x_r;
  % Inner loop.
  for k = 1:K
  % Evaluate RHS at the departure points.
@@ -292,8 +293,8 @@ X_D(X_D>x1) = x1;
  % RHS_D and U_A.
  X_D_old = X_D;
  X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
- X_D(X_D<x0) = x0;
- X_D(X_D>x1) = x1;
+ X_D(X_D<x_l) = x_l;
+ X_D(X_D>x_r) = x_r;
  dept_convergence(k,tt) = norm(X_D - X_D_old);
  if limiter
      rhs_D = ppval_lim(pp_rhs,X_D);
@@ -314,7 +315,7 @@ uout(tt,:) = Un;
 %[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c);
 %%% And plot %%%
 if plotting
-  plot([x0;X_An1;x1],[u_l;U_A;u_r])
+  plot([x_l;X_An1;x_r],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
   %if isequal(mesh_movement,'moving')
   %    hold on

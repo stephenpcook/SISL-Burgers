@@ -74,6 +74,8 @@ old_path = addpath([pwd,'\interpolation'],...
 
 load('params_default');
 if nargin==3
+  % There could be an issue here if we try to define an anonymous function
+  % in a .mat file which is not in the path. Be aware
   load(param_file);
 end
 

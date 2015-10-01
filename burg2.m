@@ -1,4 +1,4 @@
-function [Un,X_A] = burg2(N, Nt, param_file)
+function [Un,X_A,bigXstar] = burg2(N, Nt, param_file)
 % A light-weight SISL burgers solver.
 %
 % Uniform grid, linear interpolation, Crank-Nicholson-like Departure points
@@ -70,6 +70,7 @@ U_out = zeros(N,Nt);
 X_D_out = zeros(N,Nt,K);
 Unplus1 = Un;
 X_D = X_A - Dt*Unplus1;
+bigXstar = zeros(Nt+1,1);
 
 for tt = 1:Nt
     for kk = 1:K
@@ -93,6 +94,7 @@ for tt = 1:Nt
     end % for kk
     Un = Unplus1;
     U_out(:,tt) = Unplus1;
+    [~,bigXstar(tt+1)] = get_m_x(Un,X_A,c,alpha_0);
 end % for tt
 
 if plotting

@@ -4,7 +4,7 @@
 %progs = {'burgersSLMM','burg2','burgersTom'};
 %progs = {'burgersSLMM_MM'};
 program_name = 'burg2';
-in_filename = 'test.mat';
+in_filename = 'experiments/test_out.mat';
 load(in_filename)
 
 
@@ -13,20 +13,20 @@ for ii = 1:length(bigNT)
 end % for ii
 
 
-figure
-loglog(bigNX,(2/c*bigEps(:,1)+1.5*c/bigNT(1)).*bigNX','k-')
-hold on
-xlabel 'N_x'
-ylabel 'K'
-for ii = 2:length(bigNT)-1
-loglog(bigNX,(2/c*bigEps(:,ii)+1.5*c/bigNT(ii)).*bigNX','b-')
-end % for ii
-loglog(bigNX,(2/c*bigEps(:,end)+1.5*c/bigNT(end)).*bigNX','r-')
-hold off
-title([program_name,' : N*(bigEps/0.5v + vDt) for different tN'])
-xlabel 'N_x'
-ylabel 'K'
-legend(myLegend)
+% figure
+% loglog(bigNX,(2/c*bigEps(:,1)+1.5*c/bigNT(1)).*bigNX','k-')
+% hold on
+% xlabel 'N_x'
+% ylabel 'K'
+% for ii = 2:length(bigNT)-1
+% loglog(bigNX,(2/c*bigEps(:,ii)+1.5*c/bigNT(ii)).*bigNX','b-')
+% end % for ii
+% loglog(bigNX,(2/c*bigEps(:,end)+1.5*c/bigNT(end)).*bigNX','r-')
+% hold off
+% title([program_name,' : N*(bigEps/0.5v + vDt) for different tN'])
+% xlabel 'N_x'
+% ylabel 'K'
+% legend(myLegend)
 
 
 figure
@@ -46,3 +46,11 @@ plot(bigNX, bigC)
 xlabel 'N_x'
 ylabel 'bigC'
 legend(myLegend)
+title('Estimate of k from endpoint of front.')
+
+figure
+plot(bigNX, bigC2)
+xlabel 'N_x'
+ylabel 'bigC2'
+legend(myLegend)
+title('Estimate of k from average speed of front (grad of line of best fit for position.')

@@ -1,4 +1,4 @@
-function [U_A,X_An1] = burgersSLMM(N, tN, param_file)
+function [U_A,X_An1,bigXstar] = burgersSLMM(N, tN, param_file)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -317,7 +317,7 @@ X_An = X_An1;
 Un = U_A;
 %jj=jj+1;
 uout(tt,:) = Un;
-%[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c);
+[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c, alpha_0);
 %%% And plot %%%
 if plotting
   plot([x_l;X_An1;x_r],[u_l;U_A;u_r])

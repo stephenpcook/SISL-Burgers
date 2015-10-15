@@ -30,7 +30,7 @@ u_r = u0(x_r);
 
 % Plot parameters
 %plotlims = [-0.5, 1.5];
-plotting = 1;
+plotting = 0;
 plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 
 % Mesh Parameters

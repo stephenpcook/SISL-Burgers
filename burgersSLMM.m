@@ -61,8 +61,8 @@ old_path = addpath([pwd,'\interpolation'],...
 %
 %% Monitor function parameters
 %b = 0.1;
-%m=@(x,u,uprime) sqrt(b + uprime.^2);
-%%m=@(x,u,uprime)ones(size(u))
+%m=@(x,u,u_x, u_xx) sqrt(b + u_x.^2);
+%%m=@(x,u,u_x,u_xx)ones(size(u))
 %p_smooth = 5;
 %tau =1;
 %with_euler = 1;
@@ -151,9 +151,11 @@ switch mesh_movement
             % semi-lagrangian scheme!
             Uhat = U + Dt*fwd_euler(U,X_,epsilon);
             DUhatDX = [Uhat(2)-Uhat(1);diff(Uhat)]./[X_(2)-X_(1);diff(X_)];
-            M = m(X_,Uhat,DUhatDX);
+            M = m(X_,Uhat,DUhatDX,del2n*Uhat);
+            % TODO Check that we've got the right time: del2n or del2n1
         else
-            M = m(X_,U,DUDX);
+            M = m(X_,U,DUDX,del2n);
+            % TODO Check that we've got the right time: del2n or del2n1
         end
         % Smooth
         for iii = 1:p_smooth
@@ -181,7 +183,8 @@ switch mesh_movement
         %XN = X_;
         U = [u_l;Un;u_r];
         DUDX = diff(U)./diff(X_);    % ! Sits at the midpoints
-        M = m(X_,U,DUDX); % This might require changing for
+        D2UDX2 = del2n*U;
+        M = m(X_,U,DUDX,D2UDX2); % This might require changing for
                                   % different monitor functions.
         % Smooth
         for iii = 1:p_smooth

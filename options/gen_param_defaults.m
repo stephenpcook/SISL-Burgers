@@ -47,8 +47,8 @@ limiter = 1;        % Flux limiter for interpolation
 
 % Monitor function parameters
 b = 0.1;
-m=@(x,u,uprime) sqrt(b + uprime.^2);
-%m=@(x,u,uprime)ones(size(u))
+m=@(x,u,u_x,u_xx) sqrt(b + u_x.^2);
+%m=@(x,u,u_x,u_xx)ones(size(u))
 p_smooth = 5;
 tau =1;
 with_euler = 1;

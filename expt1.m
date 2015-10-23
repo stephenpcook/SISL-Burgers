@@ -77,27 +77,23 @@ for ii = 1:length(bigNX)
       otherwise
         exec(['[U,X] = ',program_name,'(N,tN);']);
     end
-    [m,x_star,w] = get_m_x(U,X,c,alpha_0);
+    [m,x_star] = get_m_x(U,X,c,alpha_0);
     bigC(ii,jj) = x_star/tmax;
     bigM(ii,jj) = m;
-    bigW(ii,jj) = w;
   end % for jj
 end % for ii
 
 [BigNT, BigNX] = meshgrid(bigNT,bigNX);  %#ok<ASGLU> Warning unused; save
 
-% bigEps1 extracted from the midpoint gradient
-bigEps1 = -0.5*alpha_0^2./bigM;  %#ok<*NASGU> File warning unused; save
-% bigEps2 extracted from the front width
-bigEps2 = alpha_0*bigW/(4*atanh(0.95)); 
+% bigEps extracted from the midpoint gradient
+bigEps = -0.5*alpha_0^2./bigM;  %#ok<*NASGU> File warning unused; save
 
 %display(bigNX)
 %display(bigNT)
 %display(bigC)
 
 %display(grad)
-%display(bigEps1)
-%display(bigEps2)
+%display(bigEps)
 
 %%%%%%%%%%%%%%%%%%%%%%%
 % Create LaTeX Tables %
@@ -105,14 +101,12 @@ bigEps2 = alpha_0*bigW/(4*atanh(0.95));
 mystr = mk_latex_table(bigC,bigNX,bigNT,'Estimate of C','%.3f',1,0);
 mystr2 = mk_latex_table(-0.5*alpha_0^2./bigM,bigNX,bigNT,...
     'Estimate of $\\eps$ from gradient at $x=c$.','%.5f',1,0);
-mystr3 = mk_latex_table(bigW.*(alpha_0/(4*1.832)),bigNX,bigNT,...
-    'Estimate of $\\eps$ from width of front.','%.5f',1,0);
 
 %%%%%%%%%%%%%%%%%%%%%
 % Save to .mat file %
 %%%%%%%%%%%%%%%%%%%%%
 save(out_filename, 'c','epsilon','alpha_0','tmax',...
-    'bigC','bigEps1','bigEps2','bigM',...
+    'bigC','bigEps','bigM',...
   'bigNX','bigNT','BigNX','BigNT','mystr','mystr2');
 
 fprintf(['Values printed to ',out_filename,'\n'])

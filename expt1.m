@@ -72,7 +72,6 @@ for ii = 1:length(bigNX)
       case 'burgersSLMM'
         %[U,X] = burgersSLMM(N,tN,param_file);
         [U,X,X_star] = burgersSLMM(N,tN,param_file);
-c2 = f.p1;
       case 'burg2'
         [U,X,X_star] = burg2(N,tN,param_file);
       case 'burgersTom'

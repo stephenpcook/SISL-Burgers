@@ -117,3 +117,5 @@ save(out_filename, 'c','epsilon','alpha_0','tmax',...
   'bigNX','bigNT','BigNX','BigNT','mystr','mystr2');
 
 fprintf(['Values printed to ',out_filename,'\n'])
+
+expt2(program_name, out_filename)

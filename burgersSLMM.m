@@ -79,6 +79,12 @@ if nargin==3
   load(param_file);
 end
 
+if nargout==3
+  track_front = 1;
+else
+  track_front = 0;
+end
+
 Dx= (x_r-x_l)./(N+1); % Space step
 Dt = (tmax-t0)/tN;  % Time step
 
@@ -101,7 +107,9 @@ TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
 dept_convergence = zeros(K,length(TT));
-bigXstar = zeros(tN,1);
+if track_front
+  bigXstar = zeros(tN,1);
+end % if track_front
 uout= XX;
 uout(1,:) = Un;
 %jj=1; % Counting variable for saving entries to uout.
@@ -317,7 +325,9 @@ X_An = X_An1;
 Un = U_A;
 %jj=jj+1;
 uout(tt,:) = Un;
-[~,bigXstar(tt)]=get_m_x(U_A,X_An1,c, alpha_0);
+if track_front
+  [~,bigXstar(tt)]=get_m_x(U_A,X_An1,c, alpha_0);
+end % if track_front
 %%% And plot %%%
 if plotting
   plot([x_l;X_An1;x_r],[u_l;U_A;u_r])

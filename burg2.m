@@ -50,6 +50,13 @@ if nargin==3
   load(param_file);
 end
 
+if nargout==3
+  track_front = 1;
+else
+  track_front = 0;
+end
+
+
 % Setup
 Dx = (x_r-x_l)/(N+1);
 Dt = tmax/Nt;
@@ -70,6 +77,9 @@ U_out = zeros(N,Nt);
 X_D_out = zeros(N,Nt,K);
 Unplus1 = Un;
 X_D = X_A - Dt*Unplus1;
+if track_front
+  bigXstar = zeros(Nt+1,1);
+end % if track_front
 
 for tt = 1:Nt
     for kk = 1:K
@@ -93,6 +103,9 @@ for tt = 1:Nt
     end % for kk
     Un = Unplus1;
     U_out(:,tt) = Unplus1;
+    if track_front
+      [~,bigXstar(tt+1)] = get_m_x(Un,X_A,c,alpha_0);
+    end % if track_front
 end % for tt
 
 if plotting

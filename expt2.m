@@ -1,10 +1,11 @@
+function [] = expt2(program_name,in_filename)
 % TODO - Make this a function that takes the in_filename as an input.
 
 %close all
 %progs = {'burgersSLMM','burg2','burgersTom'};
 %progs = {'burgersSLMM_MM'};
-program_name = 'burg2';
-in_filename = 'test.mat';
+%program_name = 'burg2';
+%in_filename = 'experiments/test_out.mat';
 load(in_filename)
 
 

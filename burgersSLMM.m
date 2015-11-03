@@ -16,9 +16,9 @@ old_path = addpath([pwd,'\interpolation'],...
 %clf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%          Default Parameters           %
+%           Default Parameters           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% General Parameters
+%%% General Parameters
 %%N=21;       % Level of spacial discretisation
 %%tN = 150;     % Number of timesteps
 %K=10;         % Departure point iterations
@@ -26,14 +26,14 @@ old_path = addpath([pwd,'\interpolation'],...
 %theta_x=1/2;  % Theta for the Theta-method for departure points.
 %epsilon=0.0001 ; % Epsilon in the PDE
 %
-%% Domain Parameters
+%%% Domain Parameters
 %x_l = -1;
 %x_r = 4;
 %
 %t0 = 0;
 %tmax = 1.5;   % Final time
 %
-%% Initial and boundary conditions
+%%% Initial and boundary conditions
 %%u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
 %%u_l = 1; u_r = 1;
 %c = 1;
@@ -42,16 +42,16 @@ old_path = addpath([pwd,'\interpolation'],...
 %u_l = u0(x_l);
 %u_r = u0(x_r);
 %
-%% Plot parameters
+%%% Plot parameters
 %%plotlims = [-0.5, 1.5];
 %plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 %plotting = 1;
 %
-%% Mesh Parameters
-%%mesh = 'static';
-%%mesh = 'prescribed';
-%mesh = 'moving-exact';  % Mesh movement type
-%%mesh = 'moving-relax';  % Mesh movement type
+%%% Mesh Parameters
+%%mesh_movement = 'static';
+%%mesh_movement = 'prescribed';
+%mesh_movement = 'moving-exact';  % Mesh movement type
+%%mesh_movement = 'moving-relax';  % Mesh movement type
 %limiter = 1;        % Flux limiter for interpolation
 %interpolation = 'linear';
 %%interpolation = 'CSpline';
@@ -59,7 +59,7 @@ old_path = addpath([pwd,'\interpolation'],...
 %%interpolation = 'ENO';
 %%interpolation = 'pchip';
 %
-%% Monitor function parameters
+%%% Monitor function parameters
 %b = 0.1;
 %m=@(x,u,u_x, u_xx) sqrt(b + u_x.^2);
 %%m=@(x,u,u_x,u_xx)ones(size(u))
@@ -130,12 +130,9 @@ for tt = 1:length(TT)
 
 % Mesh movement
 if strcmp(mesh_movement, 'static')
+  vtitle = ['Semi-Lagrangian Burgers, static mesh, N = ',num2str(N)];
 else
 switch mesh_movement
-    case 'static'
-        X_An1 = X;
-	vtitle = ['Semi-Lagrangian Burgers, static mesh, N = '...
-	,num2str(N)];
     case 'prescribed'
         % prescribed mesh, loaded from file, innit.
 	% Not yet done, static for now.
@@ -151,7 +148,6 @@ switch mesh_movement
         U = [u_l;Un;u_r];
         X_ = [x_l;X_An;x_r];
         % TODO what is going on here?
-        DUDX = [U(2) - u_l;diff(U)]./[X_An(1)-x_l;diff(X_)];
         if with_euler
             % TODO This looks nasty, have a look at Uhat whilst it's
             % running
@@ -159,11 +155,16 @@ switch mesh_movement
             % semi-lagrangian scheme!
             Uhat = U + Dt*fwd_euler(U,X_,epsilon);
             DUhatDX = [Uhat(2)-Uhat(1);diff(Uhat)]./[X_(2)-X_(1);diff(X_)];
-            M = m(X_,Uhat,DUhatDX,del2n*Uhat);
-            % TODO Check that we've got the right time: del2n or del2n1
+            D2UhatDX2 = [0;del2n1*Uhat(2:end-1) + BCn1;0];
+            D2UhatDX2(1) = D2UhatDX2(2);
+            D2UhatDX2(end) = D2UhatDX2(end-1);
+            M = m(X_,Uhat,DUhatDX,D2UhatDX2);
         else
-            M = m(X_,U,DUDX,del2n);
-            % TODO Check that we've got the right time: del2n or del2n1
+            DUDX = [Un(1) - u_l;diff(U)]./[X_An(1)-x_l;diff(X_)];
+            D2UDX2 = [0;del2n1*Un + BCn1;0];
+            D2UDX2(1) = D2UDX2(2);
+            D2UDX2(end) = D2UDX2(end-1);
+            M = m(X_,U,DUDX,D2UDX2);
         end
         % Smooth
         for iii = 1:p_smooth
@@ -191,7 +192,7 @@ switch mesh_movement
         %XN = X_;
         U = [u_l;Un;u_r];
         DUDX = diff(U)./diff(X_);    % ! Sits at the midpoints
-        D2UDX2 = del2n*U;
+        D2UDX2 = del2n1*Un + BCn1;
         M = m(X_,U,DUDX,D2UDX2); % This might require changing for
                                   % different monitor functions.
         % Smooth
@@ -332,7 +333,7 @@ end % if track_front
 if plotting
   plot([x_l;X_An1;x_r],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
-  %if isequal(mesh_movement,'moving')
+  %if isequal(mesh_movement,'moving-exact')
   %    hold on
   %    plot(monitor.x,monitor.M,'g-')
   %    hold off
@@ -351,6 +352,7 @@ if plotting
     hold on
     %plot(bigX_D(:,i),TT,'g-')
  end % for i
+ hold off
  title 'Mesh trajectories (showing 26 mesh points)'
  xlabel 'x'
  ylabel 't'

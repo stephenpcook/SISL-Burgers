@@ -90,12 +90,12 @@ Dt = (tmax-t0)/tN;  % Time step
 
 % Matrices to be used. Tridiagonal, so could be solved more efficiently
 
-% del2 - \delta_x^2, a tridiagonal matrix, finite difference second
+% delta2 - \delta_x^2, a tridiagonal matrix, finite difference second
 % derivative operator.
-del2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
+delta2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
 % LHS and RHS of SISL formulation
-M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2;
-M_LHS = eye(N) - Dt * theta_t * epsilon * del2;
+M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * delta2;
+M_LHS = eye(N) - Dt * theta_t * epsilon * delta2;
 BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
@@ -103,6 +103,7 @@ X = x_l + (1:N)'*Dx;
 Dxi = 1/(N+1);
 Un = u0(X);
 X_An = X;
+% TODO (0:tN) or (1:tN)?
 TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
@@ -117,10 +118,10 @@ X_An1 = X_An;
 DX_An = diff([x_l;X_An;x_r]);
 DX_An1 = diff([x_l;X_An1;x_r]);
 
-del2n1 = del2;
-del2n = eye(N);
+del2n1 = delta2;
+del2n = NaN(N);
 BCn1 = BC;
-BCn = zeros(N,1);
+BCn = BC;
 
 % Outer loop. Timestep
 for tt = 1:length(TT)
@@ -306,6 +307,7 @@ X_D(X_D>x_r) = x_r;
  % New guess at the departure points (theta-method) and recalculate
  % RHS_D and U_A.
  X_D_old = X_D;
+ % TODO This should read interp1(Un) or something.
  X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
  X_D(X_D<x_l) = x_l;
  X_D(X_D>x_r) = x_r;

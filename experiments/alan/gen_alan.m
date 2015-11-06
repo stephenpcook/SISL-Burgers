@@ -27,9 +27,9 @@ save('alan2.mat',...
     'param_file', 'program_name');
 
 %% alan3
-% thetaX = thetaU = 0.51
+% thetaX = thetaU = 0.55
 out_filename = 'experiments/alan/alan3_out.mat';
-param_file = 'theta51.mat';
+param_file = 'theta55.mat';
 save('alan3.mat',...
     'bigNT', 'bigNX', 'out_filename',...
     'param_file', 'program_name');

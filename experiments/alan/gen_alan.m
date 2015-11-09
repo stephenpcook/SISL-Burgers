@@ -52,7 +52,7 @@ save('alan5.mat',...
 
 %% alan6
 % Clagrange (no limiter)
-out_filename = 'experiments/barry/alan6_out.mat';
+out_filename = 'experiments/alan/alan6_out.mat';
 param_file = 'cubic_lagrange_no_limiter.mat';
 
 save('alan6.mat',...

@@ -23,7 +23,7 @@ alpha_0 = 0.5;
 u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
 u_l = u0(x_l);
 u_r = u0(x_r);
-save('alpha5','alpha_0');
+save('alpha5','alpha_0','u0','u_l','u_r');
 
 %% theta55
 theta_t = 0.55;

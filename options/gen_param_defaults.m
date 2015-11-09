@@ -43,7 +43,7 @@ interpolation = 'linear';
 %interpolation = 'CLagrange';
 %interpolation = 'ENO';
 %interpolation = 'pchip';
-limiter = 1;        % Flux limiter for interpolation
+limiter = 0;        % Flux limiter for interpolation
 
 % Monitor function parameters
 b = 0.1;

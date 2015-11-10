@@ -42,7 +42,7 @@ function [Un,X_A,bigXstar] = burg2(N, Nt, param_file)
 old_path = addpath([pwd,'\options']);
 
 load('params_default',...
-  'K', 'theta_x', 'epsilon', ...
+  'K', 'theta_t', 'theta_x', 'epsilon', ...
   'x_l', 'x_r', 't0', 'tmax',...
   'c', 'alpha_0', 'u0', 'u_l', 'u_r',...
   'plotting', 'plotlims');
@@ -59,16 +59,16 @@ end
 
 % Setup
 Dx = (x_r-x_l)/(N+1);
-Dt = tmax/Nt;
+Dt = (tmax-t0)/Nt;
 
 X_A_bc = (x_l:Dx:x_r)';
 X_A = X_A_bc(2:end-1);
 
 delta2 = 1/(Dx^2) * ...
     (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1));
-A = eye(N) - Dt*epsilon*theta_x*delta2;
+A = eye(N) - Dt*epsilon*theta_t*delta2;
 Ainv = A^(-1);
-B = eye(N) + Dt*epsilon*(1-theta_x)*delta2;
+B = eye(N) + Dt*epsilon*(1-theta_t)*delta2;
 C = Dt*epsilon/(Dx^2)*[u_l;zeros(N-2,1);u_r];
 
 % Initialisation
@@ -90,14 +90,14 @@ for tt = 1:Nt
       X_D(X_D>x_r) = x_r;
       for ll = 1:2
         Un_D = interp1(X_A_bc,[u_l;Un;u_r],X_D);
-        X_D = X_A - Dt*(0.5*Unplus1 + 0.5*Un_D);
+        X_D = X_A - Dt*(theta_x*Unplus1 + (1 - theta_x)*Un_D);
         X_D(X_D<x_l) = x_l;
         X_D(X_D>x_r) = x_r;
       end
-      R_D = interp1(X_A_bc,[u_l;B*Un + (1-theta_x)*C;u_r],X_D); % No u_xx on x_l, x_r
-      %ENO_pp = interp_ENO(X_A_bc,[u_l;B*Un + (1-theta_x)*C;u_r]);
+      R_D = interp1(X_A_bc,[u_l;B*Un + (1-theta_t)*C;u_r],X_D); % No u_xx on x_l, x_r
+      %ENO_pp = interp_ENO(X_A_bc,[u_l;B*Un + (1-theta_t)*C;u_r]);
       %R_D = ppval(ENO_pp, X_D);
-      Unplus1 = Ainv*(R_D + theta_x*C);
+      Unplus1 = Ainv*(R_D + theta_t*C);
       X_D_out(:,tt,kk) = X_D;
       X_D_diff = X_D - X_D_old;
     end % for kk

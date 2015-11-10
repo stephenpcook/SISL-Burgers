@@ -27,9 +27,9 @@ save('alan2.mat',...
     'param_file', 'program_name');
 
 %% alan3
-% thetaX = thetaU = 0.51
+% thetaX = thetaU = 0.55
 out_filename = 'experiments/alan/alan3_out.mat';
-param_file = 'theta51.mat';
+param_file = 'theta55.mat';
 save('alan3.mat',...
     'bigNT', 'bigNX', 'out_filename',...
     'param_file', 'program_name');
@@ -52,7 +52,7 @@ save('alan5.mat',...
 
 %% alan6
 % Clagrange (no limiter)
-out_filename = 'experiments/barry/alan6_out.mat';
+out_filename = 'experiments/alan/alan6_out.mat';
 param_file = 'cubic_lagrange_no_limiter.mat';
 
 save('alan6.mat',...

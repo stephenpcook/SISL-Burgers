@@ -90,12 +90,12 @@ Dt = (tmax-t0)/tN;  % Time step
 
 % Matrices to be used. Tridiagonal, so could be solved more efficiently
 
-% del2 - \delta_x^2, a tridiagonal matrix, finite difference second
+% delta2 - \delta_x^2, a tridiagonal matrix, finite difference second
 % derivative operator.
-del2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
+delta2 = (-2*eye(N) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1))./(Dx^2);
 % LHS and RHS of SISL formulation
-M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2;
-M_LHS = eye(N) - Dt * theta_t * epsilon * del2;
+M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * delta2;
+M_LHS = eye(N) - Dt * theta_t * epsilon * delta2;
 BC = [u_l/(Dx^2);zeros(N-2,1);u_r/(Dx^2)];
 
 % Initialisation
@@ -103,6 +103,7 @@ X = x_l + (1:N)'*Dx;
 Dxi = 1/(N+1);
 Un = u0(X);
 X_An = X;
+% TODO (0:tN) or (1:tN)?
 TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
@@ -117,10 +118,10 @@ X_An1 = X_An;
 DX_An = diff([x_l;X_An;x_r]);
 DX_An1 = diff([x_l;X_An1;x_r]);
 
-del2n1 = del2;
-del2n = eye(N);
+del2n1 = delta2;
+del2n = NaN(N);
 BCn1 = BC;
-BCn = zeros(N,1);
+BCn = BC;
 
 % Outer loop. Timestep
 for tt = 1:length(TT)
@@ -262,60 +263,68 @@ rhsN = u_r + Dt * (1-theta_t) * epsilon *...
 rhs0 = u_l;
 rhsN = u_r;
 
+rhs_A = [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN];
+
 switch interpolation
     case 'linear'
-        % TODO change this to griddedinterpolant
-        pp_rhs = interp1([x_l;X_An;x_r],...
-          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN],...
-            'linear','pp');
+        f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'linear');
+        f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'linear');
     case 'CSpline'
-        pp_rhs = spline([x_l;X_An;x_r],...
-        [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
+        % TODO Not sure if this is what we want
+        f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'spline');
+        f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'spline');
     case 'CLagrange'
-        pp_rhs = interp1cubicL([x_l;X_An;x_r],...
-          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
+        f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'cubic');
+        f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'cubic');
     case 'ENO'
+        % TODO This wont work any more
         pp_rhs = interp_ENO([x_l;X_An;x_r],...
           [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
     case 'pchip'
-        pp_rhs = pchip([x_l;X_An;x_r],...
-          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
+        f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'pchip');
+        f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'pchip');
 end
 
 % Initial guess of departure points.
 X_D = X_An1 - Dt*Un;
 X_D(X_D<x_l) = x_l;
 X_D(X_D>x_r) = x_r;
+
+% Evaluate RHS at the departure points.
+rhs_D = f_rhs(X_D);
+if limiter
+  % TODO May want to skip this for linear and pchip
+  rhs_D = feval_lim(X_D,rhs_D,[x_l;X_An;x_r],rhs_A);
+end % if limiter
+
  % Inner loop.
  for k = 1:K
- % Evaluate RHS at the departure points.
- switch interpolation
-   case 'linear'
-       % TODO Change this to griddedinterpolant
-       rhs_D = ppval(pp_rhs, X_D);
-   otherwise
-     if limiter
-       rhs_D = ppval_lim(pp_rhs,X_D);
-     else
-       rhs_D = ppval(pp_rhs, X_D);
-     end % if limiter
- end % switch interpolation
 
  % Solve the implicit equation (Thomas algorithm implemented later)
  U_A = M_LHS\(rhs_D + Dt*theta_t*epsilon*BCn1);
  % New guess at the departure points (theta-method) and recalculate
  % RHS_D and U_A.
- X_D_old = X_D;
- X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un);
- X_D(X_D<x_l) = x_l;
- X_D(X_D>x_r) = x_r;
+ for ll = 1:2
+   Un_D = f_Un(X_D);
+   if limiter
+     % TODO May want to skip this for linear and pchip
+     Un_D = feval_lim(X_D,Un_D,[x_l;X_An;x_r],[u_l;Un;u_r]);
+   end % if limiter
+   X_D_old = X_D;
+   X_D = X_An1 - Dt*(theta_x*U_A + (1-theta_x)*Un_D);
+   X_D(X_D<x_l) = x_l;
+   X_D(X_D>x_r) = x_r;
+ end % for ll
  dept_convergence(k,tt) = norm(X_D - X_D_old);
+
+ % Evaluate RHS at the departure points.
+ rhs_D = f_rhs(X_D);
  if limiter
-     rhs_D = ppval_lim(pp_rhs,X_D);
- else
-     rhs_D = ppval(pp_rhs, X_D);
+   % TODO May want to skip this for linear and pchip
+   rhs_D = feval_lim(X_D,rhs_D,[x_l;X_An;x_r],rhs_A);
  end % if limiter
  end % for k
+
  U_A = M_LHS\(rhs_D + Dt*theta_t*epsilon*BCn1);
  % End of Inner Loop
 

@@ -3,13 +3,59 @@
 \usepackage{graphicx}
 
 \begin{document}
-\includegraphics[width=0.9\textwidth]{alan0-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan1-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan2-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan3-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan4-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan5-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan6-k.pdf}\\
-\includegraphics[width=0.9\textwidth]{alan7-k.pdf}
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan0-k.pdf}
+  \caption{Default parameters: $\alpha = 0.1$, $\theta_u = \theta_x = 0.5$,
+  linear interpolation and static mesh.
+  \label{fig:alan0-k}}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan1-k.pdf}
+  \caption{As above, but $\alpha = 0.25$.
+  \label{fig:alan1-k}}
+\end{figure}
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan2-k.pdf}
+  \caption{Large wave amplitude, $\alpha = 0.5$.
+  \label{fig:alan2-k}}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan3-k.pdf}
+  \caption{Theta method in place of Crank-Nicholson with $\theta_u = \theta_x = 0.55$.
+    Side-by-side, this Figure and Figure~\ref{fig:alan0-k} are indistinguishable.
+  \label{fig:alan3-k}}
+\end{figure}
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan6-k.pdf}
+  \caption{Front speed using cubic Lagrange interpolation.
+  \label{fig:alan6-k}}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan5-k.pdf}
+  \caption{As in Figure~\ref{fig:alan6-k}, but with an interpolation limiter
+  applied, sacrificing smoothness for monotonicity.
+  \label{fig:alan5-k}}
+\end{figure}
+\begin{figure}[htbp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan4-k.pdf}
+  \caption{Moving mesh with exact equidistribution, so $X_A^{n+1}$
+    equidistributes the linear interpolant of $M(U^n_A,X^n_A)$, with
+    $M(u,x) = \sqrt{0.1 + {u_x}^2}$ (after smoothing and normalisation.
+  \label{fig:alan4-k}}
+\end{figure}
+\begin{figure}[hbtp]
+\centering
+  \includegraphics[width=0.9\textwidth]{alan7-k.pdf}
+  \caption{Moving mesh as in Figure~\ref{fig:alan4-k}, but with
+  $M(u,x) = \sqrt{0.1 + {u_x}^2}$.
+  \label{fig:alan7-k}}
+\end{figure}
 
 \end{document}

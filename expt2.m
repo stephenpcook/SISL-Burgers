@@ -55,3 +55,9 @@ xlabel 'N_x'
 ylabel 'bigC2'
 legend(myLegend)
 title('Estimate of k from average speed of front (grad of line of best fit for position.')
+
+figure
+loglog(bigNX, bigMinDx)
+xlabel 'N_x'
+ylabel 'min(\Delta X)'
+legend(myLegend)

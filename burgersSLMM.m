@@ -1,4 +1,4 @@
-function [U_A,X_An1,bigXstar] = burgersSLMM(N, tN, param_file)
+function [U_A,X_An1,bigXstar,bigDxMin] = burgersSLMM(N, tN, param_file)
 % Solving Burgers with a SL method with moving meshes.
 %
 % This uses the following external files.
@@ -79,10 +79,15 @@ if nargin==3
   load(param_file);
 end
 
-if nargout==3
+if nargout>=3
   track_front = 1;
 else
   track_front = 0;
+end
+if nargout==4
+  track_min_dx = 1;
+else
+  track_min_dx = 0;
 end
 
 Dx= (x_r-x_l)./(N+1); % Space step
@@ -111,6 +116,7 @@ dept_convergence = zeros(K,length(TT));
 if track_front
   bigXstar = zeros(tN,1);
 end % if track_front
+bigDxMin = zeros(tN,1);
 uout= XX;
 uout(1,:) = Un;
 %jj=1; % Counting variable for saving entries to uout.
@@ -338,6 +344,9 @@ uout(tt,:) = Un;
 if track_front
   [~,bigXstar(tt)]=get_m_x(U_A,X_An1,c, alpha_0);
 end % if track_front
+if track_min_dx
+  bigDxMin(tt) = min(diff([x_l;X_An1;x_r]));
+end % if track_min_dx
 %%% And plot %%%
 if plotting
   plot([x_l;X_An1;x_r],[u_l;U_A;u_r])

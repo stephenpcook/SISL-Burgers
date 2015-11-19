@@ -60,6 +60,7 @@ bigC = zeros(length(bigNX),length(bigNT));
 bigC2 = zeros(length(bigNX),length(bigNT));
 bigM = zeros(length(bigNX),length(bigNT));
 bigW = zeros(length(bigNX),length(bigNT));
+bigMinDx = zeros(length(bigNX),length(bigNT));
 
 %%%%%%%%%%%%%
 % Main code %
@@ -71,11 +72,13 @@ for ii = 1:length(bigNX)
     switch program_name
       case 'burgersSLMM'
         %[U,X] = burgersSLMM(N,tN,param_file);
-        [U,X,X_star] = burgersSLMM(N,tN,param_file);
+        [U,X,X_star,DxMin] = burgersSLMM(N,tN,param_file);
       case 'burg2'
         [U,X,X_star] = burg2(N,tN,param_file);
+        DxMin = min(diff(X));
       case 'burgersTom'
         [U,X] = burgersTom(N,tN);
+        DxMin = min(diff(X));
       otherwise
         exec(['[U,X] = ',program_name,'(N,tN);']);
     end
@@ -87,6 +90,7 @@ for ii = 1:length(bigNX)
     bigC2(ii,jj) = f.p1;
     %
     bigM(ii,jj) = m;
+    bigMinDx(ii,jj) = min(DxMin);
   end % for jj
 end % for ii
 
@@ -114,7 +118,7 @@ mystr2 = mk_latex_table(-0.5*alpha_0^2./bigM,bigNX,bigNT,...
 %%%%%%%%%%%%%%%%%%%%%
 save(out_filename, 'param_file', 'program_name',...
     'c','epsilon','alpha_0','tmax',...
-    'bigC','bigC2','bigEps','bigM',...
+    'bigC','bigC2','bigEps','bigM','bigMinDx',...
   'bigNX','bigNT','BigNX','BigNT','mystr','mystr2');
 
 fprintf(['Values printed to ',out_filename,'\n'])

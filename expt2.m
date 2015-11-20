@@ -60,4 +60,7 @@ figure
 loglog(bigNX, bigMinDx)
 xlabel 'N_x'
 ylabel 'min(\Delta X)'
+hold on
+loglog(bigNX, 5./bigNX)
+myLegend{4} = 'Static mesh';
 legend(myLegend)

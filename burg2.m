@@ -1,7 +1,20 @@
 function [Un,X_A,bigXstar] = burg2(N, Nt, param_file)
-% A light-weight SISL burgers solver.
+%BURG2 A light-weight SISL burgers solver with uniform grids and interp1
 %
-% Uniform grid, linear interpolation, Crank-Nicholson-like Departure points
+% [Un,X_A] = BURG2(N,Nt) returns the end-time numerical solution and its
+% associated uniform mesh with parameters defined by the options file
+% options/params_default.mat, defined by gen_param_defaults.
+%
+% [Un,X_A] = BURG2(N,Nt,param_file) is as above, but takes parameters from
+% the .mat parameter files from param_file. Only takes domain and plotting
+% options, and ignores any options for interpolation or mesh movement.
+%
+% [Un,X_A,bigXstar] = BURG2(N,Nt, ... ) tracks the front, making a call to
+% get_m_x finding the points x_star(t) such that
+%
+%   U(x_star) = (u(x_l) + u(x_r))/2.
+%
+% See also: BURGERSSLMM GEN_PARAM_DEFAULTS GET_M_X
 
 %% General Parameters
 %%N = 300;

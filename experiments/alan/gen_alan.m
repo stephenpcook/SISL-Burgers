@@ -1,6 +1,6 @@
 clear all
 bigNT = [40;80;160];
-bigNX = [(20:1000)];
+bigNX = [(10:1000)];
 program_name = 'burgersSLMM';
 
 %% alan0

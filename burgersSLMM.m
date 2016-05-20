@@ -1,19 +1,41 @@
 function [U_A,X_An1,bigXstar,bigDxMin] = burgersSLMM(N, tN, param_file)
-% Solving Burgers with a SL method with moving meshes.
+%BURGERSSLMM Solving Burgers with a SL method with moving meshes.
 %
-% This uses the following external files.
-% ~/dos/MATLAB/Eqd1dExact.m
-% ~/dos/MATLAB/mk_video.m
+% [U_A,X_An1] = BURGERSSLMM(N, tN, param_file) returns the end-time
+% numerical solution and the arrival mesh for N points and tN time steps,
+% with all other parameters defined with the .mat filename given in
+% param_file.
+%
+% [U_A,X_An1] = BURGERSSLMM(N, tN) is the same but only uses the default
+% parameter values from options/param_defaults.mat, as defined by
+% gen_param_defaults.
+%
+% [U_A,X_An1,bigXstar] = BURGERSSLMM(N, tN, ...) also makes a call to
+% get_m_x and finds the points x_star such that
+% U(x_star) = (u(x_l) + u(x_r))/2.
+%
+% [U_A,X_An1,bigXstar,bigDxMin] = BURGERSSLMM(N, tN, ...) also returns the
+% minimum mesh spacing over time.
+%
+% This uses the following external files:
+%  get_m_x.m
+%  mmpde5.m
+%  fwd_euler.m
 % And from subdirectories
-% ./mmpde5.m
-% ./fwd_euler.m
-% ./interpolation/interp1cubicL.m
-% ./interpolation/ppval_lim.m
+%  ~/dos/MATLAB/mk_video.m
+%  ./interpolation/interp1cubicL.m
+%  ./interpolation/ppval_lim.m
+%  ./mm_suite/Eqd1dExact.m
+%
+% See also: BURG2 GEN_PARAM_DEFAULTS GET_M_X MMPDE5 FWD_EULER INTERP1CUBICL
+% PPVAL_LIM EQD1DEXACT
+
+% Author: Stephen P. Cook <s.cook@bath.ac.uk>
+% Date: 10-02-2016
 old_path = addpath([pwd,'\interpolation'],...
+                   [pwd,'\mm_suite'],...
                    [pwd,'\options']);
 
-%clear all
-%clf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           Default Parameters           %

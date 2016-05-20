@@ -1,4 +1,4 @@
-% Solving Burgers with a SL method, uniform grid.
+% Script solving Burgers with a SL method, uniform grid.
 clear all
 clf
 

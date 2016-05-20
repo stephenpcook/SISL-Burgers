@@ -1,10 +1,11 @@
 function out_filename = expt1(expt_option_file)
-% Runs a given SISL code a number of times, defined by expt_option_file
+%EXPT1 Runs a given SISL code a number of times%
 %
-% Runs one of the programs for a number of NX and NT, and saves and
-% tabulates the results.
+% out_filename = EXPT1(expt_option_file) runs one of the programs for a
+% number of NX and NT, as defined in the experiment file expt_option_file
+% and saves and tabulates the results, then runs expt2.
 %
-% function out_filename = expt1(expt_option_file)
+% See also: EXPT2 MK_LATEX_TABLE GEN_PARAM_DEFAULTS
 
 %  IN:
 %   expt_option_file - string with filename.mat
@@ -123,4 +124,4 @@ save(out_filename, 'param_file', 'program_name',...
 
 fprintf(['Values printed to ',out_filename,'\n'])
 
-expt2(program_name, out_filename)
+expt2(out_filename)

@@ -1,3 +1,6 @@
 [submodule "interpolation"]
 	path = interpolation
 	url = https://github.com/stephenpcook/interpolation.git
+[submodule "mm_suite"]
+	path = mm_suite
+	url = https://github.com/stephenpcook/mm_suite.git

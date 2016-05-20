@@ -1,11 +1,14 @@
-function [] = expt2(program_name,in_filename)
-% TODO - Make this a function that takes the in_filename as an input.
+function [] = expt2(in_filename)
+%EXPT2 Plots experiment results created by expt1
+%
+% EXPT2(in_filename) creates black and white plots of epsilon and k created
+% by expt1. Can be modified to create plots of the minimum mesh spacing.
+%
+% See also: EXPT1
 
-%close all
-%progs = {'burgersSLMM','burg2','burgersTom'};
-%progs = {'burgersSLMM_MM'};
-%program_name = 'burg2';
-%in_filename = 'experiments/test_out.mat';
+%if ( nargin==0 )
+%  in_filename = 'experiments/test_out.mat';
+%end % if nargin
 load(in_filename)
 
 
@@ -13,51 +16,38 @@ for ii = 1:length(bigNT)
   myLegend{ii} = ['N_t = ',num2str(bigNT(ii))];
 end % for ii
 
-
-% figure
-% loglog(bigNX,(2/c*bigEps(:,1)+1.5*c/bigNT(1)).*bigNX','k-')
-% hold on
-% xlabel 'N_x'
-% ylabel 'K'
-% for ii = 2:length(bigNT)-1
-% loglog(bigNX,(2/c*bigEps(:,ii)+1.5*c/bigNT(ii)).*bigNX','b-')
-% end % for ii
-% loglog(bigNX,(2/c*bigEps(:,end)+1.5*c/bigNT(end)).*bigNX','r-')
-% hold off
-% title([program_name,' : N*(bigEps/0.5v + vDt) for different tN'])
-% xlabel 'N_x'
-% ylabel 'K'
-% legend(myLegend)
+% Set linecolor to default black
+set(groot,'defaultAxesColorOrder',[0 0 0]);
+% Set lines to cycle these styles
+myLines = {'-','--','-.'};
+set(groot,'defaultAxesLineStyleOrder',myLines);
 
 
-figure
-loglog(bigNX,bigEps(:,1),'k-')
+
+h1 = figure;
+set(h1,'defaulttextinterpreter','latex');
+loglog(bigNX,bigEps(:,1),myLines{1})
 hold on
 for ii=2:length(bigNT)-1
-loglog(bigNX,bigEps(:,ii),'b-')
+loglog(bigNX,bigEps(:,ii),myLines{2})
 end % for ii
-loglog(bigNX,bigEps(:,end),'r-')
-title([program_name,' : bigEps for different tN'])
-xlabel 'N_x'
-ylabel 'bigEps'
+loglog(bigNX,bigEps(:,end),myLines{3})
+title([program_name,' : bigEps for different $N_t$'])
+xlabel('$N_x$')
+ylabel('$\widehat{\varepsilon}$')
 legend(myLegend)
 
-figure
-plot(bigNX, bigC)
-xlabel 'N_x'
-ylabel 'bigC'
-legend(myLegend)
-title('Estimate of k from endpoint of front.')
 
-figure
+h3 = figure;
+set(h3,'defaulttextinterpreter','latex');
 plot(bigNX, bigC2)
-xlabel 'N_x'
-ylabel 'bigC2'
+xlabel '$N_x$'
+ylabel '$k$'
 legend(myLegend)
-title('Estimate of k from average speed of front (grad of line of best fit for position.')
+%title('Estimate of k from average speed of front (grad of line of best fit for position.')
 
-figure
-loglog(bigNX, bigMinDx)
-xlabel 'N_x'
-ylabel 'min(\Delta X)'
-legend(myLegend)
+% figure
+% loglog(bigNX, bigMinDx)
+% xlabel 'N_x'
+% ylabel 'min(\Delta X)'
+% legend(myLegend)

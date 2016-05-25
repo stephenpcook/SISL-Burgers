@@ -69,6 +69,9 @@ else
   track_front = 0;
 end
 
+tmax = 3;
+plotting = 1;
+plottimes = [floor(40/3), ceil(40*2/3), 40, floor(40*4/3)];
 
 % Setup
 Dx = (x_r-x_l)/(N+1);
@@ -122,10 +125,22 @@ for tt = 1:Nt
 end % for tt
 
 if plotting
-  for tt = 1:Nt
-  plot(X_A_bc,[u_l;U_out(:,tt);u_r])
-  ylim(plotlims)
-  drawnow
+  % Plot u0(X) and U(plottimes) whilst holding
+  h1 = figure;
+  set(h1,'defaulttextinterpreter','latex');
+  x_hr = linspace(x_l,x_r,1000);
+  plot(x_hr, u0(x_hr),'k',0,c,'kx');
+  hold on
+  xlabel '$x$';
+  ylabel '$U(x,t)$';
+  for tt = plottimes
+    plot(X_A_bc,[u_l;U_out(:,tt);u_r],'k')
+    ylim(plotlims)
+    drawnow
+    % Put a cross on the front
+    if track_front
+      plot(bigXstar(tt+1),c,'kx')
+    end
   end
 
 %  myt = 1001;

@@ -20,31 +20,17 @@ function YY = feval_lim(xx, yy, xx_lim, yy_lim)
 % Now evaluate the y's where they're supposed to be!
 xx_N = length(xx);
 
-YY = yy;
+YY = yy(:);
 
 BREAKS = xx_lim;
-COEFS = yy_lim;
+COEFS = yy_lim(:);
 
-for jj = 1:xx_N
-    % Find the correct interval. Could also be done with histc?
-    interval = 1;
-    while xx(jj)>BREAKS(interval + 1)
-        interval = interval + 1;
-    end % while
-    y_l = COEFS(interval);
-    y_r = COEFS(interval+1);
-    y_max = max(y_l,y_r);
-    y_min = min(y_l,y_r);
-    if YY(jj) > y_max
-        YY(jj) = y_max;
-        % Warning messages if appropriate verbatim param
-        %warning(['Overshoot limited in interval (',num2str(x(interval)),...
-        %    ', ',num2str(x(interval+1)),')'])
-    elseif YY(jj) < y_min
-        YY(jj) = y_min;
-        %warning(['Undershoot limited in interval (',num2str(x(interval)),...
-        %   ', ',num2str(x(interval+1)),')'])
-        % Warning messages if appropriate verbatim param
-    end % if
-end % for jj=1:y_N
+[~,BIN] = histc(xx,BREAKS);
+yy_max = [max(COEFS(1:end-1),COEFS(2:end));COEFS(end)];
+yy_min = [min(COEFS(1:end-1),COEFS(2:end));COEFS(end)];
+YY = max(min(YY,yy_max(BIN)),yy_min(BIN));
+
+YY = reshape(YY,size(yy));
+
+
 end % function

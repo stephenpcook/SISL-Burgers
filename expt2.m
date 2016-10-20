@@ -36,6 +36,7 @@ semilogy(bigNX,bigEps(:,end),myLines{3})
 xlabel('$N_x$')
 ylabel('$\widehat{\varepsilon}$')
 legend(myLegend)
+ylim([1e-4, 1e-1])
 
 
 h3 = figure;
@@ -44,6 +45,7 @@ plot(bigNX, bigC2)
 xlabel '$N_x$'
 ylabel '$\widehat{c}$'
 legend(myLegend)
+ylim([c-alpha_0, c+alpha_0])
 %title('Estimate of k from average speed of front (grad of line of best fit for position.')
 
 % figure

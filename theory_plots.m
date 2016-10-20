@@ -17,7 +17,7 @@ BigEpsHat = epsilon + 0.5*((2*BigEll+1).*Dx - Dt)...
 BigEpsTheo = max(BigEpsHat, epsmin);
 
 h1 = figure;
-loglog(BigNX, BigEpsTheo);
+semilogy(BigNX, BigEpsTheo);
 xlabel('N_x')
 ylabel('\epsilon_{hat}')
 title('Theoretical \epsilon_{hat}')

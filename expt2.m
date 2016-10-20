@@ -26,13 +26,13 @@ set(groot,'defaultAxesLineStyleOrder',myLines);
 
 h1 = figure;
 set(h1,'defaulttextinterpreter','latex');
-loglog(bigNX,bigEps(:,1),myLines{1})
+semilogy(bigNX,bigEps(:,1),myLines{1})
 hold on
 for ii=2:length(bigNT)-1
-loglog(bigNX,bigEps(:,ii),myLines{2})
+semilogy(bigNX,bigEps(:,ii),myLines{2})
 end % for ii
-loglog(bigNX,bigEps(:,end),myLines{3})
-title([program_name,' : bigEps for different $N_t$'])
+semilogy(bigNX,bigEps(:,end),myLines{3})
+%title([program_name,' : bigEps for different $N_t$'])
 xlabel('$N_x$')
 ylabel('$\widehat{\varepsilon}$')
 legend(myLegend)
@@ -42,7 +42,7 @@ h3 = figure;
 set(h3,'defaulttextinterpreter','latex');
 plot(bigNX, bigC2)
 xlabel '$N_x$'
-ylabel '$k$'
+ylabel '$\widehat{c}$'
 legend(myLegend)
 %title('Estimate of k from average speed of front (grad of line of best fit for position.')
 

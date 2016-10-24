@@ -23,3 +23,15 @@ interpolation = 'hermite';
 limiter = 0;
 save('hermite_no_limiter',...
     'interpolation','limiter');
+
+%% ENO
+interpolation = 'ENO';
+limiter = 1;
+save('ENO',...
+    'interpolation','limiter');
+
+%% ENO_no_limiter
+interpolation = 'ENO';
+limiter = 0;
+save('ENO_no_limiter',...
+    'interpolation','limiter');

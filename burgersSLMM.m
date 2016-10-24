@@ -305,9 +305,10 @@ switch interpolation
         f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'cubic');
         f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'cubic');
     case 'ENO'
-        % TODO This wont work any more
-        pp_rhs = interp_ENO([x_l;X_An;x_r],...
-          [rhs0; (M_RHS * Un + Dt*(1-theta_t)*epsilon*BCn) ; rhsN]);
+        pp_rhs = interp_ENO([x_l;X_An;x_r], rhs_A);
+        pp_f = interp_ENO([x_l;X_An;x_r],[u_l; Un ; u_r]);
+        f_rhs = @(Xq) ppval(pp_rhs,Xq);
+        f_Un = @(Xq) ppval(pp_f,Xq);
     case 'pchip'
         f_rhs = griddedInterpolant([x_l;X_An;x_r],rhs_A, 'pchip');
         f_Un = griddedInterpolant([x_l;X_An;x_r],[u_l;Un;u_r],'pchip');

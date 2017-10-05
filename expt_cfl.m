@@ -3,11 +3,12 @@ function expt_cfl
 %
 %
 load('options\params_default.mat')
+load('options\interpolation\hermite.mat')
 c = 1;
 alpha_0 = 0.1;
 tmax = 1.5;
 
-CFL_vec = [0.95 1.05];
+CFL_vec = [0.7, 1.4, 2.1];
 %CFL_vec = [2.1];
 Nx_vec = 10:1000;
 L = x_r - x_l;
@@ -45,8 +46,8 @@ for ii = 1:length(CFL_vec)
   save('CFL_WIP.mat','CFL_vec','bigNx','bigC','bigEps')
 end % for ii
 
-save('CFL3.txt','CFL_vec','bigNx','bigC','bigEps','-ascii')
-save('CFL3.mat','CFL_vec','bigNx','bigC','bigEps')
+save('CFL4.txt','CFL_vec','bigNx','bigC','bigEps','-ascii')
+save('CFL4.mat','CFL_vec','bigNx','bigC','bigEps')
 
-expt_cfl_plot;
+expt_cfl_plot('CFL4.mat');
 end % function expt_cfl

@@ -1,5 +1,8 @@
-function expt_cfl_plot
-load('CFL3.mat','CFL_vec','bigNx','bigC','bigEps')
+function expt_cfl_plot(cfl_mat_file)
+if nargin<1
+    cfl_mat_file = 'CFL4.mat';
+end % if nargin
+load(cfl_mat_file,'CFL_vec','bigNx','bigC','bigEps')
 
 % Set linecolor to default black
 set(groot,'defaultAxesColorOrder',[0 0 0]);

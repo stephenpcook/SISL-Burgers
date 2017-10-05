@@ -112,6 +112,8 @@ else
   track_min_dx = 0;
 end
 
+plotting = 0;
+
 Dx= (x_r-x_l)./(N+1); % Space step
 Dt = (tmax-t0)/tN;  % Time step
 
@@ -386,21 +388,23 @@ end % for tt
 
 if plotting
 % pause
- figure
+ h1=figure;
+ set(h1,'defaulttextinterpreter','latex');
  for i = 1:(floor(N/25)):N
-    plot(XX(:,i),TT)
+    plot(XX(:,i),TT,'k')
     hold on
     %plot(bigX_D(:,i),TT,'g-')
  end % for i
  hold off
- title 'Mesh trajectories (showing 26 mesh points)'
- xlabel 'x'
- ylabel 't'
- figure
- semilogy(TT,min(diff(XX')))
- title 'Minimum mesh spacing over time'
- xlabel 't'
- ylabel 'min(diff(X(t)))'
+ %title 'Mesh trajectories (showing 26 mesh points)'
+ xlabel('$X_A$','FontSize',18)
+ ylabel('$t$','FontSize',18)
+ h2=figure;
+ set(h2,'defaulttextinterpreter','latex');
+ semilogy(TT,min(diff(XX')),'k')
+ %title 'Minimum mesh spacing over time'
+ xlabel('$t$','FontSize',18)
+ ylabel('$\displaystyle{\min_j(X_j(t) - X_{j-1}(t))}$','FontSize',18)
 end % if plotting
 
 % Okay, only want ~200 frames in the movie.

@@ -48,8 +48,10 @@ legend(myLegend)
 ylim([c-alpha_0, c+alpha_0])
 %title('Estimate of k from average speed of front (grad of line of best fit for position.')
 
-% figure
-% loglog(bigNX, bigMinDx)
-% xlabel 'N_x'
-% ylabel 'min(\Delta X)'
-% legend(myLegend)
+h4 = figure;
+set(h4,'defaulttextinterpreter','latex');
+semilogy(bigNX, bigMinDx)
+xlabel('$N_x$','FontSize',18)
+ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$','FontSize',18)
+legend(myLegend,'FontSize',18)
+ylim([1e-5-eps 1])

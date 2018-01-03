@@ -23,13 +23,6 @@ function out_filename = expt1(expt_option_file)
 %%%%%%%%%%%%%%
 % Load files %
 %%%%%%%%%%%%%%
-% % These to be loaded from expt_option_file
-%program_name = 'burg2';
-%out_filename = 'test.mat';
-%bigNX = 20:20:320;
-%bigNT = [40,80,160]';
-% % Optional: If not present use expt_option_file
-%param_file = 'tmp.mat';
 
 addpath('.');
 addpath(genpath('experiments'));
@@ -51,9 +44,11 @@ if isempty(who('out_filename'))
     % Default for out_filename
     out_filename = 'tmp.mat';
 end % if
+
 %%%%%%%%%%%%%%%%%%
 % Initialisation %
 %%%%%%%%%%%%%%%%%%
+
 % grad is the gradient of the exact solution of a tanh profile.
 %grad = -alpha_0^2/(2*epsilon);
 
@@ -66,13 +61,13 @@ bigMinDx = zeros(length(bigNX),length(bigNT));
 %%%%%%%%%%%%%
 % Main code %
 %%%%%%%%%%%%%
+
 for ii = 1:length(bigNX)
   for jj = 1:length(bigNT)
     N = bigNX(ii);
     tN = bigNT(jj);
     switch program_name
       case 'burgersSLMM'
-        %[U,X] = burgersSLMM(N,tN,param_file);
         [U,X,X_star,DxMin] = burgersSLMM(N,tN,param_file);
       case 'burg2'
         [U,X,X_star] = burg2(N,tN,param_file);
@@ -100,16 +95,10 @@ end % for ii
 % bigEps extracted from the midpoint gradient
 bigEps = -0.5*alpha_0^2./bigM;  %#ok<*NASGU> File warning unused; save
 
-%display(bigNX)
-%display(bigNT)
-%display(bigC)
-
-%display(grad)
-%display(bigEps)
-
 %%%%%%%%%%%%%%%%%%%%%
 % Save to .mat file %
 %%%%%%%%%%%%%%%%%%%%%
+
 save(out_filename, 'param_file', 'program_name',...
     'c','epsilon','alpha_0','tmax',...
     'bigC','bigC2','bigEps','bigM','bigMinDx',...

@@ -31,7 +31,7 @@ function [U_A,X_An1,bigXstar,bigDxMin] = burgersSLMM(N, tN, param_file)
 % PPVAL_LIM EQD1DEXACT
 
 % Author: Stephen P. Cook <s.cook@bath.ac.uk>
-% Date: 10-02-2016
+% Date: 03-01-2018
 old_path = addpath([pwd,'\interpolation'],...
                    [pwd,'\mm_suite'],...
                    [pwd,'\options']);
@@ -132,7 +132,6 @@ X = x_l + (1:N)'*Dx;
 Dxi = 1/(N+1);
 Un = u0(X);
 X_An = X;
-% TODO (0:tN) or (1:tN)?
 TT = t0 + (0:tN)'*Dt;
 XX = zeros(length(TT),length(X));
 XX(1,:) = X;
@@ -143,7 +142,6 @@ end % if track_front
 bigDxMin = zeros(tN,1);
 uout= XX;
 uout(1,:) = Un;
-%jj=1; % Counting variable for saving entries to uout.
 X_An1 = X_An;
 DX_An = diff([x_l;X_An;x_r]);
 DX_An1 = diff([x_l;X_An1;x_r]);
@@ -174,16 +172,9 @@ switch mesh_movement
           X_An1 = x_l + (alpha_p*Xi.^2 + (1-alpha_p)*Xi)*(x_r-x_l);
         end
     case 'moving-exact'
-        % TODO This is going really funky at x_l, Very wrong!
-        %XN = [x_l;X_An;x_r];
         U = [u_l;Un;u_r];
         X_ = [x_l;X_An;x_r];
-        % TODO what is going on here?
         if with_euler
-            % TODO This looks nasty, have a look at Uhat whilst it's
-            % running
-            % TODO Want to try to predict the future time with an explicit
-            % semi-lagrangian scheme!
             Uhat = U + Dt*fwd_euler(U,X_,epsilon);
             DUhatDX = [Uhat(2)-Uhat(1);diff(Uhat)]./[X_(2)-X_(1);diff(X_)];
             D2UhatDX2 = [0;del2n1*Uhat(2:end-1) + BCn1;0];
@@ -211,7 +202,6 @@ switch mesh_movement
         monitor.M = M;
         X_An1 = Eqd1dExact(X_, monitor);
         X_An1 = X_An1(2:end-1);
- %       X_An1 = (X_An1 + X_An)./2;
 	vtitle = ['Semi-Lagrangian Burgers, moving mesh (exact), N = '...
 	,num2str(N)];
     case 'moving-relax'
@@ -220,7 +210,6 @@ switch mesh_movement
         % and to do the we take M to sit at the midpoints.
 
         X_ = [x_l;X_An;x_r];
-        %XN = X_;
         U = [u_l;Un;u_r];
         DUDX = diff(U)./diff(X_);    % ! Sits at the midpoints
         D2UDX2 = del2n1*Un + BCn1;
@@ -239,14 +228,11 @@ switch mesh_movement
         M = 1/2 + M./2;             % Average
         %
         x = X_;
-        %monitor.M = m([x_l;X_An;x_r],U,DUDX);
         % Spline it!
         M_pp = spline(x,mmpde5(M,x,Dxi,tau));
         [~,ode_out] = ode15s(@(t,x_)ppval(M_pp,x_),[0 Dt],x);
         X_An1 = ode_out(end,:)';
-        %X_An1 = X_ + Dt*mmpde5(M,x,Dxi,tau);
         X_An1 = X_An1(2:end-1);
- %       X_An1 = (X_An1 + X_An)./2;
 	vtitle = ['Semi-Lagrangian Burgers, moving mesh (relax), N = '...
 	,num2str(N)];
     otherwise
@@ -281,15 +267,6 @@ M_RHS = eye(N) + Dt * (1 - theta_t) * epsilon * del2n;
 end % if mesh not static
 
 % Make the spline for interpolation
-% TODO Could use a higher order term by using u_l, u(1),u(2) and u(3), like in burgers.m
-rhs0 = u_l + Dt * (1-theta_t) * epsilon *...
-    (DX_An(2)*u_l - (DX_An(1)+DX_An(2))*Un(1) + DX_An(1)*Un(2))/...
-    (1/2*DX_An(1)*DX_An(2)*(DX_An(1)+DX_An(2))); % This is an O(h) approx'n to u''
-rhsN = u_r + Dt * (1-theta_t) * epsilon *...
-    (DX_An(N)*u_r - (DX_An(N)+DX_An(N+1))*Un(N) + DX_An(N+1)*Un(N-1))/...
-    (1/2*DX_An(N)*DX_An(N+1)*(DX_An(N)+DX_An(N+1)));
-% TODO This is wrong for non-static meshes, this is a slight improvement
-% but not much.
 rhs0 = u_l;
 rhsN = u_r;
 
@@ -337,7 +314,6 @@ X_D(X_D>x_r) = x_r;
 % Evaluate RHS at the departure points.
 rhs_D = f_rhs(X_D);
 if limiter
-  % TODO May want to skip this for linear and pchip
   rhs_D = feval_lim(X_D,rhs_D,[x_l;X_An;x_r],rhs_A);
 end % if limiter
 
@@ -351,7 +327,6 @@ end % if limiter
  for ll = 1:2
    Un_D = f_Un(X_D);
    if limiter
-     % TODO May want to skip this for linear and pchip
      Un_D = feval_lim(X_D,Un_D,[x_l;X_An;x_r],[u_l;Un;u_r]);
    end % if limiter
    X_D_old = X_D;
@@ -364,7 +339,6 @@ end % if limiter
  % Evaluate RHS at the departure points.
  rhs_D = f_rhs(X_D);
  if limiter
-   % TODO May want to skip this for linear and pchip
    rhs_D = feval_lim(X_D,rhs_D,[x_l;X_An;x_r],rhs_A);
  end % if limiter
  end % for k
@@ -377,7 +351,6 @@ end % if limiter
 X_An = X_An1;
 
 Un = U_A;
-%jj=jj+1;
 uout(tt,:) = Un;
 if track_front
   [~,bigXstar(tt)]=get_m_x(U_A,X_An1,c, alpha_0);
@@ -389,11 +362,6 @@ end % if track_min_dx
 if plotting
   plot([x_l;X_An1;x_r],[u_l;U_A;u_r])
   title(['t = ',num2str(t)]), ylim(plotlims)
-  %if isequal(mesh_movement,'moving-exact')
-  %    hold on
-  %    plot(monitor.x,monitor.M,'g-')
-  %    hold off
-  %end
   drawnow()
   XX(tt,:) = X_An;
   bigX_D(tt,:) = X_D;
@@ -407,7 +375,6 @@ if plotting
  for i = 1:(floor(N/25)):N
     plot(XX(:,i),TT,'k')
     hold on
-    %plot(bigX_D(:,i),TT,'g-')
  end % for i
  hold off
  %title 'Mesh trajectories (showing 26 mesh points)'
@@ -420,11 +387,6 @@ if plotting
  xlabel('$t$','FontSize',18)
  ylabel('$\displaystyle{\min_j(X_j(t) - X_{j-1}(t))}$','FontSize',18)
 end % if plotting
-
-% Okay, only want ~200 frames in the movie.
-%t_skip = ceil(length(TT)/200);
-%mk_video('test.avi',vtitle,TT(1:t_skip:end),uout(1:t_skip:end,:),...
-%    XX(1:t_skip:end,:))
 
 path(old_path);
 end % function main

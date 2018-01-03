@@ -1,7 +1,9 @@
 function expt_cfl(options_file)
-% EXPT_CFL
+% EXPT_CFL Experiments with a fixed CFL
 %
-%
+% The number of timesteps is chosed to best approximate a fixed CFL number
+% but will be inaccurate for a low number of spatiol points.
+
 load('options\params_default.mat')
 load(options_file)
 c = 1;
@@ -9,11 +11,8 @@ alpha_0 = 0.1;
 tmax = 1.5;
 
 CFL_vec = [0.7, 1.4, 2.1];
-%CFL_vec = [2.1];
 Nx_vec = 10:1000;
 L = x_r - x_l;
-%tmax;
-%c;
 
 % Inputs
 [bigNx,CFL] = meshgrid(Nx_vec,CFL_vec);

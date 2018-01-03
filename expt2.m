@@ -6,11 +6,8 @@ function [] = expt2(in_filename)
 %
 % See also: EXPT1
 
-%if ( nargin==0 )
-%  in_filename = 'experiments/test_out.mat';
-%end % if nargin
-load(in_filename)
 
+load(in_filename)
 
 for ii = 1:length(bigNT)
   myLegend{ii} = ['N_t = ',num2str(bigNT(ii))];

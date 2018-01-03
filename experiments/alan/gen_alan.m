@@ -1,4 +1,4 @@
-clear all
+function gen_alan()
 bigNT = [40;80;160];
 bigNX = [(10:1000)];
 program_name = 'burgersSLMM';

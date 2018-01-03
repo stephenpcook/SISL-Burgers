@@ -1,4 +1,4 @@
-clear all
+function gen_interpolation()
 %% only_cubic_lagrange
 interpolation = 'CLagrange';
 limiter = 1;

@@ -1,9 +1,9 @@
-function expt_cfl
+function expt_cfl(options_file)
 % EXPT_CFL
 %
 %
 load('options\params_default.mat')
-load('options\interpolation\hermite.mat')
+load(options_file)
 c = 1;
 alpha_0 = 0.1;
 tmax = 1.5;
@@ -42,12 +42,13 @@ for ii = 1:length(CFL_vec)
   end % for jj
   fprintf('done.\n');
   toc
+  % Can take a long time. Save Work In Progress in case of shutdown
   save('CFL_WIP.txt','CFL_vec','bigNx','bigC','bigEps','-ascii')
   save('CFL_WIP.mat','CFL_vec','bigNx','bigC','bigEps')
 end % for ii
 
-save('CFL4.txt','CFL_vec','bigNx','bigC','bigEps','-ascii')
-save('CFL4.mat','CFL_vec','bigNx','bigC','bigEps')
+save('CFL.txt','CFL_vec','bigNx','bigC','bigEps','-ascii')
+save('CFL.mat','CFL_vec','bigNx','bigC','bigEps')
 
-expt_cfl_plot('CFL4.mat');
+expt_cfl_plot('CFL.mat');
 end % function expt_cfl

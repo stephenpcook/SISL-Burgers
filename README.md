@@ -12,6 +12,8 @@ Stephen P. Cook, 2018-01-03, s.cook@bath.ac.uk
 
 ## Basic Usage
 
+These have been tested on windows with MATLAB 2016b.
+
 ### Initial Setup
 
 Supporting files (.mat files) can be created with the function setup.m.

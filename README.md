@@ -12,7 +12,8 @@ Stephen P. Cook, 2018-01-03, s.cook@bath.ac.uk
 
 ## Basic Usage
 
-These have been tested on windows with MATLAB 2016b.
+This code requires the function fit from the curve fitting toolbox. It has been
+tested on windows with MATLAB 2016b.
 
 ### Initial Setup
 

@@ -12,22 +12,22 @@ Stephen P. Cook, 2018-01-03, s.cook@bath.ac.uk
 
 ## Basic Usage
 
-This code requires the function fit from the curve fitting toolbox. It has been
-tested on windows with MATLAB 2016b.
+This code requires the function `fit` from the curve fitting toolbox. It has
+been tested on windows with MATLAB 2016b.
 
 ### Initial Setup
 
-Supporting files (.mat files) can be created with the function setup.m.
+Supporting files (.mat files) can be created with the function `setup.m`.
 
 ### Semi-Lagrangian Solution to Burgers' Equation
 
 A single simulation of Burgers' equation can be run with the code in
-burgersSLMM.m - see the file for usage notes.
+`burgersSLMM.m` - see the file for usage notes.
 
 ### Numerical experiments with changing spatial and temporal steps
 
 Sets of experiments were given alphabetic names: Alan and Barry. After the
-initial setup, each individual experiment can be run with expt1.m - for
+initial setup, each individual experiment can be run with `expt1.m` - for
 example, the first "Alan" experiment can be run with
 
     expt1('experiments/alan/alan1')
@@ -35,8 +35,8 @@ example, the first "Alan" experiment can be run with
 ### Numerical experiments with fixed Courant numbers
 
 An experiment option file can be run with fixed Courant numbers using the
-function expt_cfl.m - for example, an experiment with a hermite interpolant can
-be run with
+function `expt_cfl.m` - for example, an experiment with a hermite interpolant
+can be run with
 
     expt_cfl('options/interpolation/hermite')
 
@@ -48,18 +48,19 @@ research to be tractable.
 
 ## Layout of the code
 
-The main functions are in burgersSLMM.m, expt1.m and expt_cfl.m, described
-above under Basic Usage.  Also in the root folder are:
- - plotting functions (expt2.m, expt_cfl_plot.m and theory_plots.m)
- - functions used by burgersSLMM (feval_lim.m, fwd_euler.m and mmpde5.m)
- - a function for evaluating the front width and location (get_m_x.m)
+The main functions are in `burgersSLMM.m`, `expt1.m` and `expt_cfl.m`,
+described above under Basic Usage.  Also in the root folder are:
+ - plotting functions (`expt2.m`, `expt_cfl_plot.m` and `theory_plots.m`)
+ - functions used by `burgersSLMM` (`feval_lim.m`, `fwd_euler.m` and
+   `mmpde5.m`)
+ - a function for evaluating the front width and location (`get_m_x.m`)
 
-Supporting .mat files created by setup.m are placed with their generating
-functions in the subfolders in experiments and options.  These provide the
+Supporting .mat files created by `setup.m` are placed with their generating
+functions in the subfolders in `experiments` and `options`.  These provide the
 parameters to the solver.
 
-Interpolation routines are found in the interpolation folder, and routines for
-moving meshes are provided in the mm_suite folder.
+Interpolation routines are found in the `interpolation` folder, and routines for
+moving meshes are provided in the `mm_suite` folder.
 
 The code is in various states of documentation and maintainability.
 

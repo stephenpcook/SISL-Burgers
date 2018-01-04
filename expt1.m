@@ -3,9 +3,9 @@ function out_filename = expt1(expt_option_file)
 %
 % out_filename = EXPT1(expt_option_file) runs one of the programs for a
 % number of NX and NT, as defined in the experiment file expt_option_file
-% and saves and tabulates the results, then runs expt2.
+% and saves the results, then runs expt2.
 %
-% See also: EXPT2 MK_LATEX_TABLE GEN_PARAM_DEFAULTS
+% See also: EXPT2 GEN_PARAM_DEFAULTS
 
 %  IN:
 %   expt_option_file - string with filename.mat
@@ -23,13 +23,6 @@ function out_filename = expt1(expt_option_file)
 %%%%%%%%%%%%%%
 % Load files %
 %%%%%%%%%%%%%%
-% % These to be loaded from expt_option_file
-%program_name = 'burg2';
-%out_filename = 'test.mat';
-%bigNX = 20:20:320;
-%bigNT = [40,80,160]';
-% % Optional: If not present use expt_option_file
-%param_file = 'tmp.mat';
 
 addpath('.');
 addpath(genpath('experiments'));
@@ -51,9 +44,11 @@ if isempty(who('out_filename'))
     % Default for out_filename
     out_filename = 'tmp.mat';
 end % if
+
 %%%%%%%%%%%%%%%%%%
 % Initialisation %
 %%%%%%%%%%%%%%%%%%
+
 % grad is the gradient of the exact solution of a tanh profile.
 %grad = -alpha_0^2/(2*epsilon);
 
@@ -66,13 +61,13 @@ bigMinDx = zeros(length(bigNX),length(bigNT));
 %%%%%%%%%%%%%
 % Main code %
 %%%%%%%%%%%%%
+
 for ii = 1:length(bigNX)
   for jj = 1:length(bigNT)
     N = bigNX(ii);
     tN = bigNT(jj);
     switch program_name
       case 'burgersSLMM'
-        %[U,X] = burgersSLMM(N,tN,param_file);
         [U,X,X_star,DxMin] = burgersSLMM(N,tN,param_file);
       case 'burg2'
         [U,X,X_star] = burg2(N,tN,param_file);
@@ -100,27 +95,14 @@ end % for ii
 % bigEps extracted from the midpoint gradient
 bigEps = -0.5*alpha_0^2./bigM;  %#ok<*NASGU> File warning unused; save
 
-%display(bigNX)
-%display(bigNT)
-%display(bigC)
-
-%display(grad)
-%display(bigEps)
-
-%%%%%%%%%%%%%%%%%%%%%%%
-% Create LaTeX Tables %
-%%%%%%%%%%%%%%%%%%%%%%%
-mystr = mk_latex_table(bigC,bigNX,bigNT,'Estimate of C','%.3f',1,0);
-mystr2 = mk_latex_table(-0.5*alpha_0^2./bigM,bigNX,bigNT,...
-    'Estimate of $\\eps$ from gradient at $x=c$.','%.5f',1,0);
-
 %%%%%%%%%%%%%%%%%%%%%
 % Save to .mat file %
 %%%%%%%%%%%%%%%%%%%%%
+
 save(out_filename, 'param_file', 'program_name',...
     'c','epsilon','alpha_0','tmax',...
     'bigC','bigC2','bigEps','bigM','bigMinDx',...
-  'bigNX','bigNT','BigNX','BigNT','mystr','mystr2');
+  'bigNX','bigNT','BigNX','BigNT');
 
 fprintf(['Values printed to ',out_filename,'\n'])
 

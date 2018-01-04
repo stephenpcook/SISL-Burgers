@@ -13,15 +13,11 @@ epsilon=0.0001 ; % Epsilon in the PDE
 % Domain Parameters
 x_l = -1;
 x_r = 4;
-%Dx= (x_r-x_l)./(N+1); % Space step
 
 t0 = 0;
 tmax = 1.5;   % Final time
-%Dt = (tmax-t0)/tN;
 
 % Initial and boundary conditions
-%u0 = @(x) (sin(2*pi*x) + 1/2*sin(pi*x)) + 1;
-%u_l = 1; u_r = 1;
 c = 1;
 alpha_0 = 0.1;
 u0 = @(x) c - alpha_0*tanh(alpha_0/(2*epsilon)*(x - c*t0));
@@ -29,7 +25,6 @@ u_l = u0(x_l);
 u_r = u0(x_r);
 
 % Plot parameters
-%plotlims = [-0.5, 1.5];
 plotting = 0;
 plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 
@@ -48,7 +43,6 @@ limiter = 0;        % Flux limiter for interpolation
 % Monitor function parameters
 b = 0.1;
 m=@(x,u,u_x,u_xx) sqrt(b + u_x.^2);
-%m=@(x,u,u_x,u_xx)ones(size(u))
 p_smooth = 5;
 tau =1;
 with_euler = 1;

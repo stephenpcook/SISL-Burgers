@@ -1,7 +1,7 @@
+function gen_static_uniform()
 % Script for generating .mat files in /static_uniform
 %
 % Creates alpha25.mat and alpha5.mat
-clear all
 x_l = -1;
 x_r = 4;
 c = 1;

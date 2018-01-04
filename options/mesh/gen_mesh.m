@@ -1,5 +1,4 @@
-clear all
-
+function gen_mesh()
 %% moving_exact_arc
 mesh_movement = 'moving-exact';  % Mesh movement type
 b = 0.1;

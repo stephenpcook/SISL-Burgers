@@ -1,6 +1,6 @@
-clear all
+function gen_alan()
 bigNT = [40;80;160];
-bigNX = [(10:320),(325:5:640),(650:10:1000)];
+bigNX = [(10:1000)];
 program_name = 'burgersSLMM';
 
 %% alan0

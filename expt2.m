@@ -6,11 +6,8 @@ function [] = expt2(in_filename)
 %
 % See also: EXPT1
 
-%if ( nargin==0 )
-%  in_filename = 'experiments/test_out.mat';
-%end % if nargin
-load(in_filename)
 
+load(in_filename)
 
 for ii = 1:length(bigNT)
   myLegend{ii} = ['N_t = ',num2str(bigNT(ii))];
@@ -48,8 +45,10 @@ legend(myLegend)
 ylim([c-alpha_0, c+alpha_0])
 %title('Estimate of k from average speed of front (grad of line of best fit for position.')
 
-% figure
-% loglog(bigNX, bigMinDx)
-% xlabel 'N_x'
-% ylabel 'min(\Delta X)'
-% legend(myLegend)
+h4 = figure;
+set(h4,'defaulttextinterpreter','latex');
+semilogy(bigNX, bigMinDx)
+xlabel('$N_x$','FontSize',18)
+ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$','FontSize',18)
+legend(myLegend,'FontSize',18)
+ylim([1e-5-eps 1])

@@ -14,7 +14,10 @@ for ii = 1:length(bigNT)
 end % for ii
 
 % Set linecolor to default black
-set(groot,'defaultAxesColorOrder',[0 0 0]);
+set(groot,'defaultAxesColorOrder',...
+    [0 0 0;
+     0.4 0.4 0.4
+     0.6 0.6 0.6]);
 % Set lines to cycle these styles
 myLines = {'-','--','-.'};
 set(groot,'defaultAxesLineStyleOrder',myLines);
@@ -38,7 +41,13 @@ ylim([1e-4, 1e-1])
 
 h3 = figure;
 set(h3,'defaulttextinterpreter','latex');
-plot(bigNX, bigC2)
+plot(bigNX, bigC2(:,1))
+hold on
+for ii=2:length(bigNT)-1
+plot(bigNX,bigC2(:,ii),myLines{2})
+end % for ii
+semilogy(bigNX,bigC2(:,end),myLines{3})
+hold off
 xlabel '$N_x$'
 ylabel '$\widehat{c}$'
 legend(myLegend)
@@ -47,7 +56,13 @@ ylim([c-alpha_0, c+alpha_0])
 
 h4 = figure;
 set(h4,'defaulttextinterpreter','latex');
-semilogy(bigNX, bigMinDx)
+semilogy(bigNX, bigMinDx(:,1),myLines{1})
+hold on
+for ii=2:length(bigNT)-1
+semilogy(bigNX, bigMinDx(:,ii),myLines{2})
+end % for ii
+semilogy(bigNX, bigMinDx(:,end),myLines{3})
+hold off
 xlabel('$N_x$','FontSize',18)
 ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$','FontSize',18)
 legend(myLegend,'FontSize',18)

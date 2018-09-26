@@ -82,8 +82,8 @@ for ii = 1:length(bigNX)
     bigC(ii,jj) = x_star/tmax;
     % Alternative way of calculating speed: line of best fit
     T = linspace(0,1.5,tN+1)';
-    f = fit(T,X_star,'poly1');
-    bigC2(ii,jj) = f.p1;
+    f = polyfit(T, X_star, 1);
+    bigC2(ii,jj) = f(1);
     %
     bigM(ii,jj) = m;
     bigMinDx(ii,jj) = min(DxMin);

@@ -66,3 +66,15 @@ param_file = 'moving_exact_curv.mat';
 save('alan7.mat',...
     'bigNT', 'bigNX', 'out_filename',...
     'param_file', 'program_name');
+
+%% alan_test
+% moving mesh, m = sqrt(0.1 + u_xx^2)
+bigNT = [40;80;160];
+bigNX = [(10:10:1000)];
+program_name = 'burgersSLMM';
+
+out_filename = 'experiments/alan/alan_test_out.mat';
+param_file = 'moving_exact_curv.mat';
+save('alan_test.mat',...
+    'bigNT', 'bigNX', 'out_filename',...
+    'param_file', 'program_name');

@@ -52,3 +52,10 @@ xlabel('$N_x$','FontSize',18)
 ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$','FontSize',18)
 legend(myLegend,'FontSize',18)
 ylim([1e-5-eps 1])
+
+h5 = figure;
+set(h5,'defaulttextinterpreter','latex');
+semilogy(bigNX, sqrt(bigL2))
+xlabel('$N_x$','FontSize',18)
+ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$','FontSize',18)
+legend(myLegend,'FontSize',18)

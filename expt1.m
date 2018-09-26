@@ -57,6 +57,7 @@ bigC2 = zeros(length(bigNX),length(bigNT));
 bigM = zeros(length(bigNX),length(bigNT));
 bigW = zeros(length(bigNX),length(bigNT));
 bigMinDx = zeros(length(bigNX),length(bigNT));
+bigL2 = zeros(length(bigNX),length(bigNT));
 
 %%%%%%%%%%%%%
 % Main code %
@@ -87,6 +88,8 @@ for ii = 1:length(bigNX)
     %
     bigM(ii,jj) = m;
     bigMinDx(ii,jj) = min(DxMin);
+
+    bigL2(ii,jj) = calc_l2_error(X, U, param_file);
   end % for jj
 end % for ii
 
@@ -102,7 +105,8 @@ bigEps = -0.5*alpha_0^2./bigM;  %#ok<*NASGU> File warning unused; save
 save(out_filename, 'param_file', 'program_name',...
     'c','epsilon','alpha_0','tmax',...
     'bigC','bigC2','bigEps','bigM','bigMinDx',...
-  'bigNX','bigNT','BigNX','BigNT');
+    'bigNX','bigNT','BigNX','BigNT',...
+    'bigL2');
 
 fprintf(['Values printed to ',out_filename,'\n'])
 

@@ -58,5 +58,5 @@ set(h5,'defaulttextinterpreter','latex');
 semilogy(bigNX, bigL2)
 xlabel('$N_x$','FontSize',18)
 ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$','FontSize',18)
-ylim([1e-2, 1])
+ylim([1e-3, 1e-0])
 legend(myLegend,'FontSize',18)

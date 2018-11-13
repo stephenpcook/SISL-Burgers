@@ -70,7 +70,11 @@ ylim([1e-5-eps 1])
 
 h5 = figure;
 set(h5,'defaulttextinterpreter','latex');
-semilogy(bigNX, bigL2)
+semilogy(bigNX, bigL2(:,1), myLines{1})
+for ii=2:length(bigNT)-1
+  semilogy(bigNX, bigL2(:,ii), myLines{2})
+end % for ii
+semilogy(bigNX, bigL2(:,end), myLines{3})
 xlabel('$N_x$','FontSize',18)
 ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$','FontSize',18)
 ylim([1e-3, 1e-0])

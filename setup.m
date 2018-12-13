@@ -17,6 +17,9 @@ gen_mesh;
 cd([rootdir, filesep,'options', filesep,'static_uniform'])
 gen_static_uniform;
 
+cd([rootdir, filesep,'options', filesep,'new_longer'])
+gen_new_longer;
+
 cd([rootdir, filesep, 'experiments'])
 gen_def_expt_options;
 
@@ -25,5 +28,8 @@ gen_alan;
 
 cd([rootdir, filesep, 'experiments', filesep, 'barry'])
 gen_barry;
+
+cd([rootdir, filesep, 'experiments', filesep, 'carly'])
+gen_carly;
 
 cd(rootdir)

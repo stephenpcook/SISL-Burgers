@@ -4,7 +4,7 @@ bigNX = [(10:1000)];
 program_name = 'burgersSLMM';
 
 %% carly0
-% Defaults
+% Description
 out_filename = 'experiments/carly/carly0_out.mat';
 param_file = 'new_longer_static.mat';
 save('carly0.mat',...
@@ -12,10 +12,18 @@ save('carly0.mat',...
     'param_file', 'program_name');
 
 %% carly1
-% Defaults
+% Description
 out_filename = 'experiments/carly/carly1_out.mat';
 param_file = 'new_longer_static_hermite.mat';
 save('carly1.mat',...
+    'bigNT', 'bigNX', 'out_filename',...
+    'param_file', 'program_name');
+
+%% carly2
+% Description
+out_filename = 'experiments/carly/carly2_out.mat';
+param_file = 'new_longer_moving.mat';
+save('carly2.mat',...
     'bigNT', 'bigNX', 'out_filename',...
     'param_file', 'program_name');
 

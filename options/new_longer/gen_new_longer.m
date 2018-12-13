@@ -31,6 +31,7 @@ plotlims = [c-alpha_0-0.1, c+alpha_0+0.1];
 % Mesh Parameters
 mesh_movement = 'static';
 interpolation = 'linear';
+limiter = 0;
 
 save('new_longer_static'...
   ...% General Parameters
@@ -41,6 +42,10 @@ save('new_longer_static'...
   ,'c', 'alpha_0', 'u0', 'u_l', 'u_r'...
   ...% Plot parameters
   ,'plotting', 'plotlims'...
+  ...% Mesh Parameters
+  ,'mesh_movement'...
+  ...% Interpolation parameters
+  ,'interpolation', 'limiter'...
   );
 
 %% new_longer_static_hermite
@@ -59,7 +64,97 @@ save('new_longer_static_hermite'...
   ,'c', 'alpha_0', 'u0', 'u_l', 'u_r'...
   ...% Plot parameters
   ,'plotting', 'plotlims'...
+  ...% Mesh Parameters
+  ,'mesh_movement'...
+  ...% Interpolation parameters
+  ,'interpolation', 'limiter'...
   );
 
+%% new_longer_moving_10
+mesh_movement = 'moving-exact'
+beta = 10;
+m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
+p_smooth = 5;
+% tau should only have an effect when mesh_movement = 'moving-relax'
+tau = 1;
+with_euler = 0;
+
+interpolation = 'linear';
+
+save('new_longer_moving_10'...
+    ...% General Parameters
+  ,'K', 'epsilon'...
+  ...% Domain Parameters
+  ,'x_l', 'x_r', 't0', 'tmax'...
+  ...% Initial and boundary conditions
+  ,'c', 'alpha_0', 'u0', 'u_l', 'u_r'...
+  ...% Plot parameters
+  ,'plotting', 'plotlims'...
+  ...% Mesh Parameters
+  ,'mesh_movement'...
+  ...% Monitor function parameters
+  ,'m', 'p_smooth', 'tau', 'with_euler'...
+  ...% Interpolation Parameters
+  ,'interpolation', 'limiter'...
+  );
+
+%% new_longer_moving_30
+mesh_movement = 'moving-exact'
+beta = 30;
+m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
+p_smooth = 5;
+% tau should only have an effect when mesh_movement = 'moving-relax'
+tau = 1;
+with_euler = 0;
+
+interpolation = 'linear';
+plotting = 1;
+
+save('new_longer_moving_30'...
+    ...% General Parameters
+  ,'K', 'epsilon'...
+  ...% Domain Parameters
+  ,'x_l', 'x_r', 't0', 'tmax'...
+  ...% Initial and boundary conditions
+  ,'c', 'alpha_0', 'u0', 'u_l', 'u_r'...
+  ...% Plot parameters
+  ,'plotting', 'plotlims'...
+  ...% Mesh Parameters
+  ,'mesh_movement'...
+  ...% Monitor function parameters
+  ,'m', 'p_smooth', 'tau', 'with_euler'...
+  ...% Interpolation Parameters
+  ,'interpolation', 'limiter'...
+  );
+
+
+%% new_longer_moving_50
+mesh_movement = 'moving-exact'
+beta = 50;
+m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
+p_smooth = 5;
+% tau should only have an effect when mesh_movement = 'moving-relax'
+tau = 1;
+with_euler = 0;
+
+interpolation = 'linear';
+plotting = 0;
+
+save('new_longer_moving_50'...
+    ...% General Parameters
+  ,'K', 'epsilon'...
+  ...% Domain Parameters
+  ,'x_l', 'x_r', 't0', 'tmax'...
+  ...% Initial and boundary conditions
+  ,'c', 'alpha_0', 'u0', 'u_l', 'u_r'...
+  ...% Plot parameters
+  ,'plotting', 'plotlims'...
+  ...% Mesh Parameters
+  ,'mesh_movement'...
+  ...% Monitor function parameters
+  ,'m', 'p_smooth', 'tau', 'with_euler'...
+  ...% Interpolation Parameters
+  ,'interpolation', 'limiter'...
+  );
 
 end % function gen_new_longer

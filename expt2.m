@@ -10,7 +10,7 @@ function [] = expt2(in_filename)
 load(in_filename)
 
 for ii = 1:length(bigNT)
-  myLegend{ii} = ['N_t = ',num2str(bigNT(ii))];
+  myLegend{ii} = ['\Delta t = ',num2str(tmax / bigNT(ii))];
 end % for ii
 
 % Set lines to cycle these styles and colors

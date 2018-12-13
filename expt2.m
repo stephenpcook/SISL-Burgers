@@ -13,50 +13,82 @@ for ii = 1:length(bigNT)
   myLegend{ii} = ['N_t = ',num2str(bigNT(ii))];
 end % for ii
 
-% Set linecolor to default black
-%set(groot,'defaultAxesColorOrder',[0 0 0]);
-% Set lines to cycle these styles
+% Set lines to cycle these styles and colors
 myLines = {'-','--','-.'};
-set(groot,'defaultAxesLineStyleOrder',myLines);
-
-
+myColors = {[0 0 0], [0.4 0.4 0.4], [0.6 0.6 0.6]};
+FontSize = 18;
+LegendFontSize = 18;
 
 h1 = figure;
 set(h1,'defaulttextinterpreter','latex');
-semilogy(bigNX,bigEps(:,1),myLines{1})
+a = semilogy(bigNX, bigEps(:,1));
+set(a, 'Color', myColors{1}, 'LineStyle', myLines{1});
 hold on
 for ii=2:length(bigNT)-1
-semilogy(bigNX,bigEps(:,ii),myLines{2})
+  a = semilogy(bigNX, bigEps(:,ii));
+set(a, 'Color', myColors{2}, 'LineStyle', myLines{2});
 end % for ii
-semilogy(bigNX,bigEps(:,end),myLines{3})
+a = semilogy(bigNX,bigEps(:,end));
+set(a, 'Color', myColors{end}, 'LineStyle', myLines{end});
 %title([program_name,' : bigEps for different $N_t$'])
-xlabel('$N_x$')
-ylabel('$\widehat{\varepsilon}$')
+xlabel('$N_x$', 'FontSize', FontSize)
+ylabel('$\widehat{\varepsilon}$', 'FontSize', FontSize)
 legend(myLegend)
 ylim([1e-4, 1e-1])
 
 
 h3 = figure;
 set(h3,'defaulttextinterpreter','latex');
-plot(bigNX, bigC2)
-xlabel '$N_x$'
-ylabel '$\widehat{c}$'
+a = plot(bigNX, bigC2(:,1));
+set(a, 'Color', myColors{1}, 'LineStyle', myLines{1});
+hold on
+for ii=2:length(bigNT)-1
+  a = plot(bigNX, bigC2(:,ii));
+  set(a, 'Color', myColors{2}, 'LineStyle', myLines{2});
+end % for ii
+a = semilogy(bigNX, bigC2(:,end));
+set(a, 'Color', myColors{3}, 'LineStyle', myLines{3});
+hold off
+xlabel('$N_x$', 'FontSize', FontSize)
+ylabel('$\widehat{c}$', 'FontSize', FontSize)
 legend(myLegend)
 ylim([c-alpha_0, c+alpha_0])
 %title('Estimate of k from average speed of front (grad of line of best fit for position.')
 
 h4 = figure;
 set(h4,'defaulttextinterpreter','latex');
-semilogy(bigNX, bigMinDx)
-xlabel('$N_x$','FontSize',18)
-ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$','FontSize',18)
-legend(myLegend,'FontSize',18)
+a = semilogy(bigNX, bigMinDx(:,1));
+set(a, 'Color', myColors{1}, 'LineStyle', myLines{1});
+hold on
+for ii=2:length(bigNT)-1
+  a = semilogy(bigNX, bigMinDx(:,ii));
+  set(a, 'Color', myColors{2}, 'LineStyle', myLines{2});
+end % for ii
+a = semilogy(bigNX, bigMinDx(:,end));
+set(a, 'Color', myColors{3}, 'LineStyle', myLines{3});
+hold off
+xlabel('$N_x$', 'FontSize', FontSize)
+ylabel('$\displaystyle{\min_{j,n}(X^n_j - X^n_{j-1})}$', 'FontSize', FontSize)
+legend(myLegend, 'FontSize', LegendFontSize)
 ylim([1e-5-eps 1])
 
 h5 = figure;
 set(h5,'defaulttextinterpreter','latex');
-semilogy(bigNX, bigL2)
-xlabel('$N_x$','FontSize',18)
-ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$','FontSize',18)
-ylim([1e-2, 1])
-legend(myLegend,'FontSize',18)
+set(h5,'defaultAxesColorOrder',...
+    [0 0 0;
+     0.4 0.4 0.4
+     0.6 0.6 0.6]);
+a = semilogy(bigNX, bigL2(:,1));
+set(a, 'Color', myColors{1}, 'LineStyle', myLines{1});
+hold on
+for ii=2:length(bigNT)-1
+  a = semilogy(bigNX, bigL2(:,ii));
+  set(a, 'Color', myColors{2}, 'LineStyle', myLines{2});
+end % for ii
+a = semilogy(bigNX, bigL2(:,end));
+set(a, 'Color', myColors{3}, 'LineStyle', myLines{3});
+hold off
+xlabel('$N_x$', 'FontSize', FontSize)
+ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$', 'FontSize', FontSize)
+ylim([1e-3, 1e-0])
+legend(myLegend, 'FontSize', LegendFontSize)

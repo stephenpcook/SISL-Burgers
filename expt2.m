@@ -89,6 +89,7 @@ a = semilogy(bigNX, bigL2(:,end));
 set(a, 'Color', myColors{3}, 'LineStyle', myLines{3});
 hold off
 xlabel('$N_x$', 'FontSize', FontSize)
-ylabel('$\displaystyle{||U - u(x, 1.5)||_2}$', 'FontSize', FontSize)
+ylabel(strcat('$\displaystyle{||U - u(x, ', num2str(tmax), ')||_2}$'), ...
+        'FontSize', FontSize)
 ylim([1e-3, 1e-0])
 legend(myLegend, 'FontSize', LegendFontSize)

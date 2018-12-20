@@ -71,7 +71,7 @@ save('new_longer_static_hermite'...
   );
 
 %% new_longer_moving_10
-mesh_movement = 'moving-exact'
+mesh_movement = 'moving-exact';
 beta = 10;
 m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
 p_smooth = 5;
@@ -99,7 +99,7 @@ save('new_longer_moving_10'...
   );
 
 %% new_longer_moving_30
-mesh_movement = 'moving-exact'
+mesh_movement = 'moving-exact';
 beta = 30;
 m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
 p_smooth = 5;
@@ -129,7 +129,7 @@ save('new_longer_moving_30'...
 
 
 %% new_longer_moving_50
-mesh_movement = 'moving-exact'
+mesh_movement = 'moving-exact';
 beta = 50;
 m = @(x, u, u_x, u_xx) sqrt(1 + beta^2*u_x.^2);
 p_smooth = 5;
